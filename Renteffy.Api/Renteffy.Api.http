@@ -1,0 +1,6 @@
+@Renteffy.Api_HostAddress = http://localhost:5198
+
+GET {{Renteffy.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

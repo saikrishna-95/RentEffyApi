@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="Renteffy.Api/Renteffy.Api.csproj" />
+  <Project Path="Renteffy.Application/Renteffy.Application.csproj" />
+  <Project Path="Renteffy.Domain.Services/Renteffy.Domain.Services.csproj" />
+  <Project Path="Renteffy.Domain/Renteffy.Domain.csproj" />
+  <Project Path="Renteffy.Infrastructure/Renteffy.Infrastructure.csproj" />
+  <Project Path="Renteffy.Integration/Renteffy.Integration.csproj" />
+  <Project Path="Renteffy.Persistence/Renteffy.Persistence.csproj" />
+  <Project Path="Renteffy.Shared/Renteffy.Shared.csproj" />
+</Solution>

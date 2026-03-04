@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Renteffy.Application\Renteffy.Application.csproj" />
+    <ProjectReference Include="..\Renteffy.Domain.Services\Renteffy.Domain.Services.csproj" />
+    <ProjectReference Include="..\Renteffy.Domain\Renteffy.Domain.csproj" />
+    <ProjectReference Include="..\Renteffy.Integration\Renteffy.Integration.csproj" />
+    <ProjectReference Include="..\Renteffy.Persistence\Renteffy.Persistence.csproj" />
+    <ProjectReference Include="..\Renteffy.Shared\Renteffy.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
