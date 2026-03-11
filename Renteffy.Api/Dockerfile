@@ -1,8 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
-COPY src/MyApp/*.csproj ./src/MyApp/ 
-RUN dotnet restore ./src/MyApp/MyApp.csproj
+COPY Renteffy.Api/*.csproj ./src/Renteffy.Api/ 
+RUN dotnet restore ./src/Renteffy.Api/Renteffy.Api.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
