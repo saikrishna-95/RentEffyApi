@@ -13,13 +13,11 @@ COPY Rentefy.Shared/*.csproj Rentefy.Shared/
 
 RUN dotnet restore
 
-# Copy everything else
 COPY . .
 
 WORKDIR /src/Rentefy.Api
 RUN dotnet publish -c Release -o /app/publish
 
-# Runtime Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
