@@ -5,12 +5,6 @@ WORKDIR /src
 # Copy solution and restore
 COPY *.sln .
 COPY Renteffy.Api/*.csproj Renteffy.Api/
-COPY Renteffy.Application/*.csproj Renteffy.Application/
-COPY Renteffy.Domain/*.csproj Renteffy.Domain/
-COPY Renteffy.Infrastructure/*.csproj Renteffy.Infrastructure/
-COPY Renteffy.Persistence/*.csproj Renteffy.Persistence/
-COPY Renteffy.Shared/*.csproj Renteffy.Shared/
-
 RUN dotnet restore
 
 # Copy everything else
