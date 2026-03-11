@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
@@ -46,16 +47,23 @@ namespace Renteffy.Application.Implementation.Owner
         }
         private async Task<List<PostMediaDto>> SaveFilesAsync(int postId,List<IFormFile> files)
         {
-            var rootPath = Path.Combine(
-                _environment.ContentRootPath,
-                _fileOptions.FolderName
-            );
+            //var rootPath = Path.Combine(
+            //    _environment.ContentRootPath,
+            //    _fileOptions.FolderName
+            //);
 
-            var uploadRoot = Path.Combine(
-                rootPath,
-                "posts",
-                postId.ToString()
-            );
+            string rootPath;
+
+            if (_environment.IsDevelopment())
+            {
+                rootPath = Path.Combine("C:\\", _fileOptions.FolderName);
+            }
+            else
+            {
+                rootPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)!.FullName,_fileOptions.FolderName);
+            }
+
+            var uploadRoot = Path.Combine(rootPath,"posts",postId.ToString());
 
             if (!Directory.Exists(uploadRoot))
                 Directory.CreateDirectory(uploadRoot);

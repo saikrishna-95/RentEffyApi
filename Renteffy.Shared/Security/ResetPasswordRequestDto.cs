@@ -6,8 +6,7 @@ namespace Renteffy.Shared.Security
 {
     public class ResetPasswordRequestDto
     {
-        public int UserId { get; set; } = default!;
-        public string Mobile { get; set; } = default!;
+        public string EmailOrMobile { get; set; } = default!;
         public string NewPassword { get; set; } = default!;
 
         public string ConfirmPassword { get; set; } = default!;

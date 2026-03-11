@@ -1,11 +1,14 @@
 ﻿using Azure.Core;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Renteffy.Domain.Services.PersistanceInterfaces.PasswordRestChange;
 using Renteffy.Persistence.RegistrationDbContext;
 using Renteffy.Shared.Database.DbConnection;
 using Renteffy.Shared.Security;
 using System.Data;
+using System.Reflection;
+using static System.Net.WebRequestMethods;
 
 
 namespace Renteffy.Persistence.Implementation.PasswordRestChange
@@ -76,7 +79,8 @@ namespace Renteffy.Persistence.Implementation.PasswordRestChange
             {
                 Success = true,
                 Mobile = smsSent ? MaskMobile(result.Mobile) : "",
-                Email = emailSent ? MaskEmail(result.Email) : ""
+                Email = emailSent ? MaskEmail(result.Email) : "",
+                Otp = result.Otp
             };
 
         }
@@ -117,20 +121,49 @@ namespace Renteffy.Persistence.Implementation.PasswordRestChange
             return parameters.Get<int>("@ReturnValue");
         }
 
-        public async Task<int> UpdatePasswordAsync(int userId, string passWordHash)
+        public async Task<int> UpdatePasswordAsync(ResetPasswordRequestDto request)
         {
-            string password = BCrypt.Net.BCrypt.HashPassword(passWordHash);
+            string password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
             using var con = _dbFactory.CreateConnection();
 
-            var result =  await con.ExecuteAsync(
-                @"UPDATE Users
-                SET PasswordHash = @PasswordHash
-                WHERE UserId = @UserId AND IsDeleted = 0",
-                new { UserId = userId, PasswordHash = password }
+            var user = await con.QueryFirstOrDefaultAsync<int?>(
+                @"SELECT UserId
+                  FROM Users
+                  WHERE (Email = @EmailOrMobile OR Mobile = @EmailOrMobile)
+                  AND IsDeleted = 0",
+                new { EmailOrMobile = request.EmailOrMobile }
             );
+
+            if (user == null)
+            {
+                return 0;
+            }
+
+            var result = await con.ExecuteAsync(
+                    @"UPDATE Users
+                    SET PasswordHash = @PasswordHash
+                    WHERE UserId = @UserId",
+                new { PasswordHash = password, UserId = user }
+            );
+
             return result;
         }
 
+        public async Task<int> ChangePassword(ChangePasswordRequest request)
+        {
+            var oldHash = BCrypt.Net.BCrypt.HashPassword(request.OldPassword);
+            var newHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            using var con = _dbFactory.CreateConnection();
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", request.UserId);
+            parameters.Add("@OldPasswordHash", request.OldPassword);
+            parameters.Add("@NewPasswordHash", request.NewPassword);
+            parameters.Add("@ReturnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+            await con.ExecuteAsync("dbo.sp_ChangePassword",parameters,commandType: CommandType.StoredProcedure);
+            var result = parameters.Get<int>("@ReturnValue");
+            return result;
+        }
     }
 }

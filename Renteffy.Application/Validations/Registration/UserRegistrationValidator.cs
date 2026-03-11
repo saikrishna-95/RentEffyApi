@@ -13,7 +13,7 @@ namespace Renteffy.Application.Validations.Registration
             RuleFor(x => x.FullName).NotEmpty().MaximumLength(100);
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
-            RuleFor(x => x.Phone).NotEmpty().MaximumLength(20);
+            RuleFor(x => x.Mobile).NotEmpty().MaximumLength(20);
         }
     }
 }

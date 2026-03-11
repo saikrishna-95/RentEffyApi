@@ -15,11 +15,11 @@ namespace Renteffy.Api.Controllers.Authentication
         public PasswordRestOrChangeController(IPasswordRestOrChange service) => _service = service;
 
         [AllowAnonymous]
-        [HttpPost("ForgetPassword")]
+        [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto dto)
         {
             var result = await _service.GenerateOtpAsync(dto.Mobile);
-             return Ok(result); //0- Mobile Not Resister, 1-Otp Send Success
+            return Ok(result); //0- Mobile Not Resister, 1-Otp Send Success
         }
 
         [AllowAnonymous]
@@ -43,12 +43,9 @@ namespace Renteffy.Api.Controllers.Authentication
                 });
             }
 
-            var result = await _service.UpdatePasswordAsync(
-                request.UserId,
-                request.NewPassword
-            );
+            var result = await _service.UpdatePasswordAsync(request);
 
-            if (result<=0)
+            if (result <= 0)
             {
                 return BadRequest(new
                 {
@@ -63,6 +60,32 @@ namespace Renteffy.Api.Controllers.Authentication
                 Message = "Password reset successfully"
             });
         }
-
+        [Authorize]
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        {
+            if (request.NewPassword == request.OldPassword)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "New password cannot be the same as the old password"
+                });
+            }
+            var result = await _service.ChangePassword(request);
+            if (result <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Unable to change password"
+                });
+            }
+            return Ok(new
+            {
+                Success = true,
+                Message = "Password changed successfully"
+            });
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace Renteffy.Application.Interfaces.PasswordRestChange
     {
         Task<PasswordOtpResponseDto> GenerateOtpAsync(string mobile);
         Task<int> ValidateOtpAsync(string mobile, string otp);
-        Task<int> UpdatePasswordAsync(int userId, string passwordHash);
+        Task<int> UpdatePasswordAsync(ResetPasswordRequestDto request);
+        Task<int> ChangePassword(ChangePasswordRequest request);
     }
 }

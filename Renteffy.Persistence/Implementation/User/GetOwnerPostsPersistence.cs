@@ -31,11 +31,17 @@ namespace Renteffy.Persistence.Implementation.User
             var posts = (await multi.ReadAsync<PublicPostResponseDto>()).ToList();
             var media = (await multi.ReadAsync<PostMediaDto>()).ToList();
             var pricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
+            var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
+            var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
+            var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
 
             foreach (var post in posts)
             {
                 post.Media = media.Where(m => m.PostId == post.PostId).ToList();
                 post.Pricing = pricing.Where(p => p.PostId == post.PostId).ToList();
+                post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
+                post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
+                post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
             }
 
             return posts;

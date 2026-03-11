@@ -25,9 +25,15 @@ namespace Renteffy.Application.Implementation.PasswordRestChange
             return result;
         }
 
-        public async Task<int> UpdatePasswordAsync(int userId, string passwordHash)
+        public async Task<int> UpdatePasswordAsync(ResetPasswordRequestDto request)
         {
-            var result = await _domain.UpdatePasswordAsync(userId, passwordHash);
+            var result = await _domain.UpdatePasswordAsync(request);
+            return result;
+        }
+
+        public async Task<int> ChangePassword(ChangePasswordRequest request)
+        {
+            var result = await _domain.ChangePassword(request);
             return result;
         }
     }

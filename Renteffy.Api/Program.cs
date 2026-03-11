@@ -37,20 +37,34 @@ using Renteffy.Persistence.Implementation.User;
 using Renteffy.Persistence.RegistrationDbContext;
 using Renteffy.Shared.Database.DbConnection;
 using Renteffy.Shared.Security;
+using System.IO;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.Configure<FileStorageOptions>(
-    builder.Configuration.GetSection("FileStorage")
-);
-// Build absolute physical path based on environment
+builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
+var fileOptions = builder.Configuration.GetSection("FileStorage").Get<FileStorageOptions>();
 var folderName = builder.Configuration["FileStorage:FolderName"];
-var storagePath = Path.Combine(builder.Environment.ContentRootPath,folderName);
-
-// Ensure directory exists
-if (!Directory.Exists(storagePath))
+//var storagePath = Path.Combine(builder.Environment.ContentRootPath,folderName);
+//var storagePath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", folderName));
+string storagePath;
+if (builder.Environment.IsDevelopment())
 {
-    Directory.CreateDirectory(storagePath);
+    storagePath = Path.Combine("C:\\", fileOptions.FolderName);
+}
+else
+{
+    storagePath = Path.Combine(Directory.GetParent(builder.Environment.ContentRootPath)!.FullName,fileOptions.FolderName);
+}
+try
+{
+    if (!Directory.Exists(storagePath))
+    {
+        Directory.CreateDirectory(storagePath);
+    }
+}
+catch (UnauthorizedAccessException)
+{
+    throw;
 }
 builder.Services.AddSingleton(new PhysicalFileProvider(storagePath));// Add services to the container.
 
@@ -98,7 +112,6 @@ builder.Services.AddAuthentication("Bearer")
     };
 });
 builder.Services.AddMemoryCache();
-
 builder.Services.AddScoped<IJwtKeyGenerator, JwtKeyGenerator>();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 
@@ -107,26 +120,28 @@ builder.Services.AddScoped<IUserRegistrationAapplication, UserRegistrationApplic
 builder.Services.AddScoped<IPasswordRestOrChange, PasswordRestOrChange>();
 builder.Services.AddScoped<IAddPostApplication, AddPostApplication>();
 builder.Services.AddScoped<IGetOwnerPostsApplication, GetOwnerPostsApplication>();
+builder.Services.AddScoped<IGetPostsByOwnerApplication, GetPostsByOwnerApplication>();
 
 builder.Services.AddScoped<IUserAuthDomain, UserAuthDomain>();
 builder.Services.AddScoped<IUserRegistrationDomain, UserRegistrationDomain>();
 builder.Services.AddScoped<IPasswordRestOrChangeDomain, PasswordRestOrChangeDomain>();
 builder.Services.AddScoped<IAddPostDomain, AddPostDomain>();
 builder.Services.AddScoped<IGetOwnerPostsDomain, GetOwnerPostsDomain>();
+builder.Services.AddScoped<IGetPostsByOwnerDomain, GetPostsByOwnerDomain>();
 
 builder.Services.AddScoped<IUserReadPersistance, UserReadPersistance>();
 builder.Services.AddScoped<IUserRegistrationPersistence, UserRegistrationPersistence>();
 builder.Services.AddScoped<IPasswordRestOrChangePersistance,PasswordRestOrChangePersistance>();
 builder.Services.AddScoped<IAddPostPersistence, AddPostPersistance>();
 builder.Services.AddScoped<IGetOwnerPostsPersistence, GetOwnerPostsPersistence>();
+builder.Services.AddScoped<IGetPostsByOwnerPersistance, GetPostsByOwnerPersistance>();
 
 var app = builder.Build();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(storagePath),
-    RequestPath = "/uploads"
-});
-// Configure the HTTP request pipeline.
+app.MapGet("/", () => "ASP.NET Core running on Render");
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+app.Run($"http://0.0.0.0:{port}");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -141,6 +156,12 @@ app.UseSwaggerUI(options =>
 });
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(storagePath),
+    RequestPath = fileOptions.PublicBaseUrl
+});
 app.UseCors("RenteffyCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();

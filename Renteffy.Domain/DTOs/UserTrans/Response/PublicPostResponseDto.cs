@@ -9,6 +9,7 @@ namespace Renteffy.Domain.DTOs.User.Response
     public class PublicPostResponseDto
     {
         public int PostId { get; set; }
+        public int PgTypeId { get; set; }
         public string PgName { get; set; } = default!;
         public string? ApartmentName { get; set; }
         public string Address { get; set; } = default!;
@@ -19,5 +20,9 @@ namespace Renteffy.Domain.DTOs.User.Response
 
         public List<PostMediaDto> Media { get; set; } = [];
         public List<RoomPricingDto> Pricing { get; set; } = [];
+
+        public List<AmenitiesDto> Amenities { get; set; } = [];
+        public List<StayingPeriodsPostDto> stayingPeriods { get; set; } = [];
+        public List<FoodPostDto> foodPosts { get; set; } = [];
     }
 }
