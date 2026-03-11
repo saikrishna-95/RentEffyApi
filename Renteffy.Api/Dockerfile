@@ -4,19 +4,19 @@ WORKDIR /src
 
 # Copy solution and restore
 COPY *.sln .
-COPY Rentefy.Api/*.csproj Rentefy.Api/
-COPY Rentefy.Application/*.csproj Rentefy.Application/
-COPY Rentefy.Domain/*.csproj Rentefy.Domain/
-COPY Rentefy.Infrastructure/*.csproj Rentefy.Infrastructure/
-COPY Rentefy.Persistence/*.csproj Rentefy.Persistence/
-COPY Rentefy.Shared/*.csproj Rentefy.Shared/
+COPY Renteffy.Api/*.csproj Renteffy.Api/
+COPY Renteffy.Application/*.csproj Renteffy.Application/
+COPY Renteffy.Domain/*.csproj Renteffy.Domain/
+COPY Renteffy.Infrastructure/*.csproj Renteffy.Infrastructure/
+COPY Renteffy.Persistence/*.csproj Renteffy.Persistence/
+COPY Renteffy.Shared/*.csproj Renteffy.Shared/
 
 RUN dotnet restore
 
 # Copy everything else
 COPY . .
 
-WORKDIR /src/Rentefy.Api
+WORKDIR /src/Renteffy.Api
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime Stage
@@ -27,4 +27,4 @@ COPY --from=build /app/publish .
 
 EXPOSE 10000
 
-ENTRYPOINT ["dotnet", "Rentefy.Api.dll"]
+ENTRYPOINT ["dotnet", "Renteffy.Api.dll"]
