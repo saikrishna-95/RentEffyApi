@@ -24,8 +24,26 @@ namespace Renteffy.Api.Controllers.User
             _cache = cache;
         }
 
-        [HttpGet("GetAllMaters")]
         [AllowAnonymous]
+        [HttpGet("GetCategories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var data = new CategoriesMatersResponseDto
+            {
+                Categories = await _context.M_Categories_MT
+                    .AsNoTracking()
+                    .Select(x => new CategoryResponseDto
+                    {
+                        CategoryId = x.CategoryId,
+                        Name = x.Name
+                    })
+                    .ToListAsync(),
+            };
+            return Ok(data);
+        }
+
+        [Authorize]
+        [HttpGet("GetAllMasters")]
         public async Task<IActionResult> GetAllMasterData()
         {
             var data = new MasterDataResponseDTO
@@ -107,7 +125,7 @@ namespace Renteffy.Api.Controllers.User
         }
 
         [AllowAnonymous]
-        [HttpGet("OwnerPosts")]
+        [HttpGet("GetAllPosts")]
         public async Task<IActionResult> GetOwnerPosts()
         {
             var posts = await _readApp.GetPublicPostsAsync();
@@ -116,7 +134,7 @@ namespace Renteffy.Api.Controllers.User
             {
                 foreach (var media in post.Media)
                 {
-                    media.FileUrl = $"{baseUrl}{media.FilePath}{media.FileName}";
+                    media.FileUrl = $"{baseUrl}{media.FilePath}";
                 }
             }
             return Ok(posts);

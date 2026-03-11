@@ -41,10 +41,41 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            var amenitiesTable = new DataTable();
+            amenitiesTable.Columns.Add("AmenityId", typeof(int));
+
+            foreach (var rp in request.Amenities)
+            {
+                amenitiesTable.Rows.Add(
+                    rp.AmenityId
+                );
+            }
+
+            var stayingPeriodTable = new DataTable();
+            stayingPeriodTable.Columns.Add("StngPrdId", typeof(int));
+
+            foreach (var rp in request.StayingPeriods)
+            {
+                stayingPeriodTable.Rows.Add(
+                    rp.StngPrdId
+                );
+            }
+
+            var foodPostTable = new DataTable();
+            foodPostTable.Columns.Add("FoodId", typeof(int));
+
+            foreach (var rp in request.FoodPosts)
+            {
+                foodPostTable.Rows.Add(
+                    rp.FoodId
+                );
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@OwnerId", request.UserId);
             parameters.Add("@CategoryId", request.CategoryId);
+            parameters.Add("@PgTypeId", request.PgTypeId);  
             parameters.Add("@PgName", request.PgName);
             parameters.Add("@ApartmentName", request.ApartmentName);
             parameters.Add("@Address", request.Address);
@@ -57,6 +88,9 @@ namespace Renteffy.Persistence.Implementation.Owner
             parameters.Add("@Status", 1);
             // 🔑 TVP parameter
             parameters.Add("@RoomPricing", pricingTable.AsTableValuedParameter("RoomPricingList"));
+            parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
+            parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
+            parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
 
             var postId = await con.QuerySingleAsync<int>("sp_AddPostWithRoomPricing", parameters, commandType: CommandType.StoredProcedure);
 

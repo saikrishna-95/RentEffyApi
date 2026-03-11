@@ -72,7 +72,7 @@ namespace Renteffy.Domain.Services.Implementation.Authentication
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim("Email", user.Email.ToString()),
-                new Claim("phone", user.Phone),
+                new Claim("Mobile", user.Mobile),
                 new Claim("type", tokenType)
             };
 
@@ -147,7 +147,7 @@ namespace Renteffy.Domain.Services.Implementation.Authentication
                     Role = roles,
                     Permissions = permissions,
                     Email = user.Email,
-                    Phone = user.Phone,
+                    Mobile = user.Mobile,
                     FullName = user.FullName
                 };
             }

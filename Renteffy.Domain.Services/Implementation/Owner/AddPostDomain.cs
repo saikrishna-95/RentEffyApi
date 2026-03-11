@@ -18,6 +18,7 @@ namespace Renteffy.Domain.Services.Implementation.Owner
 
         public AddPostDomain(IAddPostPersistence readRepo, IConfiguration config)
         {
+
             _readRepo = readRepo;
             _config = config;
         }

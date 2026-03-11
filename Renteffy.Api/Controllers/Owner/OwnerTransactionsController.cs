@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.PasswordRestChange;
 using Renteffy.Domain.DTOs.Owner.Request;
@@ -14,25 +15,56 @@ namespace Renteffy.Api.Controllers.Owner
     public class OwnerTransactionsController : ControllerBase
     {
         private readonly IAddPostApplication _readApp;
-        public OwnerTransactionsController(IAddPostApplication readApp) => _readApp = readApp;
+        private readonly IGetPostsByOwnerApplication _getPostsByOwnerApplication;
+        public OwnerTransactionsController(IAddPostApplication readApp, IGetPostsByOwnerApplication getPostsByOwnerApplication)
+        {
+            _readApp = readApp;
+            _getPostsByOwnerApplication = getPostsByOwnerApplication;
+        }
 
         [AllowAnonymous]
         [HttpPost("AddPost")]
-        public async Task<IActionResult> AddPostAsync([FromForm] AddPostRequestDto request, [FromForm] List<IFormFile> files)
+        public async Task<IActionResult> AddPostAsync([FromForm] string data, [FromForm] List<IFormFile> files)
         {
-            //var request = JsonSerializer.Deserialize<AddPostRequestDto>(postData,
-            //            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            try
+            {
+                var request = JsonSerializer.Deserialize<AddPostRequestDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            if (request == null)
+                if (request == null)
+                    return BadRequest("Invalid post data");
+
+                var postId = await _readApp.AddPostAsync(request, files);
+
+                return Ok(new
+                {
+                    Success = postId <= 0 ? false : true,
+                    PostId = postId
+                });
+                // your existing code
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message); // This will show the real error
+            }
+        }
+
+        [Authorize]
+        [HttpPost("GetPostsByOwnerId")]
+        public async Task<IActionResult> GetPostsByOwnerId(int ownerId)
+        {
+            if (ownerId==null)
                 return BadRequest("Invalid post data");
 
-            var postId = await _readApp.AddPostAsync(request,files);
-
-            return Ok(new
+            var posts = await _getPostsByOwnerApplication.GetPostsByOwnerIdAsync(ownerId);
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+            foreach (var post in posts)
             {
-                Success = postId <= 0 ? false : true,
-                PostId = postId
-            });
+                foreach (var media in post.Media)
+                {
+                    media.FileUrl = $"{baseUrl}{media.FilePath}{media.FileName}";
+                }
+            }
+            return Ok(posts);
         }
     }
 }

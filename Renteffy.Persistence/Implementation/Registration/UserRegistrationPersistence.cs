@@ -30,7 +30,7 @@ namespace Renteffy.Persistence.Implementation.Registration
             parameters.Add("@FullName", user.FullName);
             parameters.Add("@Email", user.Email);
             parameters.Add("@PasswordHash", user.PasswordHash);
-            parameters.Add("@Phone", user.Phone);
+            parameters.Add("@Mobile", user.Mobile);
             //parameters.Add("@IsDeleted", user.IsDeleted);
 
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);

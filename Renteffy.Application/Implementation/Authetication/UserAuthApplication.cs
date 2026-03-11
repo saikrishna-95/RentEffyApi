@@ -37,8 +37,9 @@ namespace Renteffy.Application.Implementation.Authetication
                     ExpiresAt = DateTime.UtcNow.AddMinutes(30),
                     Role = roles,
                     Permissions = permissions,
+                    UserId = user.UserId,
                     Email = user.Email,
-                    Phone = user.Phone,
+                    Mobile = user.Mobile,
                     FullName = user.FullName
                 };
             }
@@ -53,8 +54,9 @@ namespace Renteffy.Application.Implementation.Authetication
                 ExpiresAt = DateTime.UtcNow.AddMinutes(30),
                 Role = roles,
                 Permissions = permissions,
+                UserId = user.UserId,
                 Email = user.Email,
-                Phone = user.Phone,
+                Mobile = user.Mobile,
                 FullName = user.FullName
             };
         }

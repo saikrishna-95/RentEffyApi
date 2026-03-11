@@ -23,7 +23,7 @@ namespace Renteffy.Domain.Services.Implementation.Registration
             {
                 FullName = request.FullName,
                 Email = request.Email,
-                Phone = request.Phone,
+                Mobile = request.Mobile,
                 PasswordHash = passwordHash
             };
 
