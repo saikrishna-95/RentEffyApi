@@ -137,10 +137,6 @@ builder.Services.AddScoped<IGetOwnerPostsPersistence, GetOwnerPostsPersistence>(
 builder.Services.AddScoped<IGetPostsByOwnerPersistance, GetPostsByOwnerPersistance>();
 
 var app = builder.Build();
-app.MapGet("/", () => "ASP.NET Core running on Render");
-
-var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-app.Run($"http://0.0.0.0:{port}");
 
 if (app.Environment.IsDevelopment())
 {
