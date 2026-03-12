@@ -2,15 +2,17 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution and restore
-COPY *.sln .
+# Copy csproj files
 COPY Renteffy.Api/*.csproj Renteffy.Api/
-RUN dotnet restore
 
-# Copy everything else
+# Restore dependencies
+RUN dotnet restore Renteffy.Api/Renteffy.Api.csproj
+
+# Copy source code
 COPY . .
 
 WORKDIR /src/Renteffy.Api
+
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime Stage
