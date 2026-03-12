@@ -78,7 +78,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("RenteffyCorsPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200", "http://localhost:3000", "https://www.renteffy.com")
+            .WithOrigins("http://localhost:4200", "http://localhost:3000", "https://renteffyapi.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -151,11 +151,11 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-    //options.SwaggerEndpoint("/swagger/v1/swagger.json", "Renteffy API v1");
-    options.SwaggerEndpoint("v1/swagger.json", "Renteffy API v1");
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Renteffy API v1");
     options.RoutePrefix = "swagger";
 });
 //app.UseHttpsRedirection();
+app.UseHostFiltering();
 app.UseRouting();
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
