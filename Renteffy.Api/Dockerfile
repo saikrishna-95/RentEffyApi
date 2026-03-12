@@ -2,8 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution and restore
-COPY *.sln .
+# Copy csproj files
 COPY Renteffy.Api/*.csproj Renteffy.Api/
 COPY Renteffy.Application/*.csproj Renteffy.Application/
 COPY Renteffy.Domain/*.csproj Renteffy.Domain/
@@ -11,12 +10,14 @@ COPY Renteffy.Infrastructure/*.csproj Renteffy.Infrastructure/
 COPY Renteffy.Persistence/*.csproj Renteffy.Persistence/
 COPY Renteffy.Shared/*.csproj Renteffy.Shared/
 
-RUN dotnet restore
+# Restore dependencies
+RUN dotnet restore Renteffy.Api/Renteffy.Api.csproj
 
-# Copy everything else
+# Copy source code
 COPY . .
 
 WORKDIR /src/Renteffy.Api
+
 RUN dotnet publish -c Release -o /app/publish
 
 # Runtime Stage
