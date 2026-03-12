@@ -138,6 +138,10 @@ builder.Services.AddScoped<IGetOwnerPostsPersistence, GetOwnerPostsPersistence>(
 builder.Services.AddScoped<IGetPostsByOwnerPersistance, GetPostsByOwnerPersistance>();
 
 var app = builder.Build();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -151,15 +155,7 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("v1/swagger.json", "Renteffy API v1");
     options.RoutePrefix = "swagger";
 });
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+//app.UseHttpsRedirection();
 app.UseRouting();
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
