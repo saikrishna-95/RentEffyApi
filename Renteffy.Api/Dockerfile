@@ -2,6 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+
 # Copy csproj files
 COPY Renteffy.Api/*.csproj Renteffy.Api/
 COPY Renteffy.Application/*.csproj Renteffy.Application/
