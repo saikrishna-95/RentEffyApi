@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Connections;
 using Renteffy.Domain.DTOs.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.DTOs.User.Response;
 using Renteffy.Domain.Entities.Registration;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
@@ -45,6 +47,26 @@ namespace Renteffy.Persistence.Implementation.Owner
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
             }
             return posts;
+        }
+
+        public async Task<EditOwnerPostResponseDto> GetPostForEditAsync(int postId)
+        {
+            using var connection = _dbFactory.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                                    "sp_GetPostForEdit",
+                                    new { PostId = postId },
+                                    commandType: CommandType.StoredProcedure);
+
+            var post = await multi.ReadFirstOrDefaultAsync<EditOwnerPostResponseDto>();
+
+            post.RoomPricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
+            post.Media = (await multi.ReadAsync<PostMediaDto>()).ToList();
+            post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
+            post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
+            post.FoodPosts = (await multi.ReadAsync<FoodPostDto>()).ToList();
+
+            return post;
         }
     }
 }

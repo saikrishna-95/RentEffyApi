@@ -7,7 +7,11 @@
         public int PgTypeId { get; set; }
         public string PgName { get; set; } = default!;
         public string? ApartmentName { get; set; }
-        public string Address { get; set; } = default!;
+        public string HouseNo { get; set; } = default!;
+        public string Street { get; set; } = default!;
+        public string AreaName { get; set; } = default!;
+        public string City { get; set; } = default!;
+        public string State { get; set; } = default!;
         public string Pincode { get; set; } = default!;
         public string Mobile { get; set; } = default!;
         public decimal? Latitude { get; set; }

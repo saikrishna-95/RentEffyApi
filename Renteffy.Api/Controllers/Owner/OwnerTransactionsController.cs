@@ -49,6 +49,7 @@ namespace Renteffy.Api.Controllers.Owner
         }
 
         [Authorize]
+        //[AllowAnonymous]
         [HttpPost("GetPostsByOwnerId")]
         public async Task<IActionResult> GetPostsByOwnerId(int ownerId)
         {
@@ -61,9 +62,30 @@ namespace Renteffy.Api.Controllers.Owner
             {
                 foreach (var media in post.Media)
                 {
-                    media.FileUrl = $"{baseUrl}{media.FilePath}{media.FileName}";
+                    //media.FileUrl = $"{baseUrl}{media.FilePath}";
+                    media.FileUrl = $"{media.FilePath}";
                 }
             }
+            return Ok(posts);
+        }
+
+        [Authorize]
+        //[AllowAnonymous]
+        [HttpPost("GetPostForEdit")]
+        public async Task<IActionResult> GetPostForEdit(int postId)
+        {
+            if (postId == null)
+                return BadRequest("Invalid data enter.");
+
+            var posts = await _getPostsByOwnerApplication.GetPostForEditAsync(postId);
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+            foreach (var media in posts.Media)
+            {
+                media.FileUrl = $"{baseUrl}/{media.FileUrl}";
+            }
+            if (posts == null)
+                return NotFound();
+
             return Ok(posts);
         }
     }

@@ -1,4 +1,5 @@
-﻿using Renteffy.Domain.DTOs.User.Response;
+﻿using Renteffy.Domain.DTOs.Owner.Response;
+using Renteffy.Domain.DTOs.User.Response;
 using Renteffy.Domain.Services.Interfaces.Owner;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using System;
@@ -17,6 +18,10 @@ namespace Renteffy.Domain.Services.Implementation.Owner
         public async Task<List<PublicPostResponseDto>> GetPostsByOwnerIdAsync(int ownerId)
         {
             return await _getPostsByOwnerPersistance.GetPostsByOwnerIdAsync(ownerId);
+        }
+        public async Task<EditOwnerPostResponseDto> GetPostForEditAsync(int postId)
+        {
+            return await _getPostsByOwnerPersistance.GetPostForEditAsync(postId);
         }
     }
 }

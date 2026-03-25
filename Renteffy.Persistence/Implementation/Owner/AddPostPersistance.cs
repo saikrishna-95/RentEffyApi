@@ -78,7 +78,11 @@ namespace Renteffy.Persistence.Implementation.Owner
             parameters.Add("@PgTypeId", request.PgTypeId);  
             parameters.Add("@PgName", request.PgName);
             parameters.Add("@ApartmentName", request.ApartmentName);
-            parameters.Add("@Address", request.Address);
+            parameters.Add("@HouseNo", request.HouseNo);
+            parameters.Add("@Street", request.Street);
+            parameters.Add("@AreaName", request.AreaName);
+            parameters.Add("@City", request.City);
+            parameters.Add("@State", request.State);
             parameters.Add("@Pincode", request.Pincode);
             parameters.Add("@Mobile", request.Mobile);
             parameters.Add("@Latitude", request.Latitude);

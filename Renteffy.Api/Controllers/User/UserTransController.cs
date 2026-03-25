@@ -134,7 +134,8 @@ namespace Renteffy.Api.Controllers.User
             {
                 foreach (var media in post.Media)
                 {
-                    media.FileUrl = $"{baseUrl}{media.FilePath}";
+                    //media.FileUrl = $"{baseUrl}{media.FilePath}";
+                    media.FileUrl = $"{media.FilePath}";
                 }
             }
             return Ok(posts);
