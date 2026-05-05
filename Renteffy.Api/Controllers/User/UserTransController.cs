@@ -7,6 +7,8 @@ using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.User;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Persistence.RegistrationDbContext;
+using System.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Renteffy.Api.Controllers.User
 {
@@ -139,6 +141,87 @@ namespace Renteffy.Api.Controllers.User
                 }
             }
             return Ok(posts);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetProductById")]
+        public async Task<IActionResult> GetProductsAsync(int postid)
+        {
+            var posts = await _readApp.GetProductsAsync(postid);
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+            foreach (var post in posts)
+            {
+                foreach (var media in post.Media)
+                {
+                    //media.FileUrl = $"{baseUrl}{media.FilePath}";
+                    media.FileUrl = $"{media.FilePath}";
+                }
+            }
+            return Ok(posts);
+        }
+
+        //[Authorize]
+        [AllowAnonymous]
+        [HttpPost("like")]
+        public async Task<IActionResult> LikePost(int postId, int userId)
+        {
+            var result = await _readApp.LikePostAsync(postId, userId);
+            return Ok(result);
+        }
+
+        [HttpGet("likescount")]
+        public async Task<IActionResult> GetLikesCount(int postId, int userId)
+        {
+            var data = await _readApp.GetLikesCountAsync(postId, userId);
+            return Ok(data);
+        }
+
+        [Authorize]
+        [HttpPost("favorite")]
+        public async Task<IActionResult> FavoritePost(int postId, int userId)
+        {
+            var result = await _readApp.FavoritePostAsync(postId, userId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("favoritescount")]
+        public async Task<IActionResult> GetFavoritesCount(int postId, int userId)
+        {
+            var data = await _readApp.GetFavoritesCountAsync(postId, userId);
+            return Ok(data);
+        }
+
+        [Authorize]
+        [HttpPost("comment")]
+        public async Task<IActionResult> AddComment(int postId, int userId, string comment)
+        {
+            var result = await _readApp.AddCommentAsync(postId, userId, comment);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("comments/{postId}")]
+        public async Task<IActionResult> GetComments(int postId)
+        {
+            var result = await _readApp.GetCommentsAsync(postId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("request")]
+        public async Task<IActionResult> SendRequest(int postId, int userId, string message)
+        {
+            var result = await _readApp.SendRequestAsync(postId, userId, message);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("owner/requests/{ownerId}")]
+        public async Task<IActionResult> GetRequests(int ownerId)
+        {
+            var result = await _readApp.GetOwnerRequestsAsync(ownerId);
+            return Ok(result);
         }
     }
 }

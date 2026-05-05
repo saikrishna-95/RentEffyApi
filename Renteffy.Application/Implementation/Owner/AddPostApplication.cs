@@ -94,51 +94,13 @@ namespace Renteffy.Application.Implementation.Owner
             return mediaList;
         }
 
-        //private async Task<List<PostMediaDto>> SaveFilesAsync(int postId,List<IFormFile> files)
-        //{
-        //    //var rootPath = Path.Combine(
-        //    //    _environment.ContentRootPath,
-        //    //    _fileOptions.FolderName
-        //    //);
+        public async Task<int> UpdatePostAsync(UpdatePostRequestDTO request, List<(int mediaId, IFormFile file)> replaceMedia, List<IFormFile> newFiles)
+            => await _domn.UpdatePostAsync(request, replaceMedia, newFiles);
 
-        //    string rootPath;
+        public async Task<bool> DeletePostAsync(int postId, int userId)
+            => await _domn.DeletePostAsync(postId, userId);
 
-        //    if (_environment.IsDevelopment())
-        //    {
-        //        rootPath = Path.Combine("C:\\", _fileOptions.FolderName);
-        //    }
-        //    else
-        //    {
-        //        rootPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)!.FullName,_fileOptions.FolderName);
-        //    }
-
-        //    var uploadRoot = Path.Combine(rootPath,"posts",postId.ToString());
-
-        //    if (!Directory.Exists(uploadRoot))
-        //        Directory.CreateDirectory(uploadRoot);
-
-        //    var mediaList = new List<PostMediaDto>();
-
-        //    foreach (var file in files)
-        //    {
-        //        var ext = Path.GetExtension(file.FileName);
-        //        var fileName = $"{Guid.NewGuid()}{ext}";
-        //        var fullPath = Path.Combine(uploadRoot, fileName);
-
-        //        using var stream = new FileStream(fullPath, FileMode.Create);
-        //        await file.CopyToAsync(stream);
-
-        //        mediaList.Add(new PostMediaDto
-        //        {
-        //            PostId = postId,
-        //            MediaType = file.ContentType.StartsWith("video") ? "Video" : "Image",
-        //            FileName = fileName,
-        //            FilePath = $"{_fileOptions.PublicBaseUrl}/posts/{postId}/{fileName}",
-        //            ContentType = file.ContentType
-        //        });
-        //    }
-
-        //    return mediaList;
-        //}
+        public async Task<bool> UpdatePostStatusAsync(int postId, int userId, int status)
+            => await _domn.UpdatePostStatusAsync(postId, userId, status);
     }
 }

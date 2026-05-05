@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using MediatR;
 using Renteffy.Application.Interfaces.Authentication;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.Services.Interfaces.Authentication;
 using Renteffy.Shared.Security;
 using System;
@@ -14,6 +15,12 @@ namespace Renteffy.Application.Implementation.Authetication
     {
         private readonly IUserAuthDomain _domain;
         public UserAuthApplication(IUserAuthDomain domain) => _domain = domain;
+
+        public async Task<UserProfileResponseDto> GetUserProfile(int userId)
+            => await _domain.GetUserProfile(userId);
+
+        public async Task<UpdateUserProfileResponse2Dto> UpdateUserProfile(UpdateUserProfileResponseDto model)
+             => await _domain.UpdateUserProfile(model);
 
         public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
         {

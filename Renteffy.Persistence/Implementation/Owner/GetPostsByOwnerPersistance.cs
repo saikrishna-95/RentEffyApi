@@ -4,6 +4,7 @@ using Renteffy.Domain.DTOs.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
 using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.DTOs.User.Response;
+using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Domain.Entities.Registration;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Shared.Database.DbConnection;
@@ -59,9 +60,8 @@ namespace Renteffy.Persistence.Implementation.Owner
                                     commandType: CommandType.StoredProcedure);
 
             var post = await multi.ReadFirstOrDefaultAsync<EditOwnerPostResponseDto>();
-
-            post.RoomPricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
             post.Media = (await multi.ReadAsync<PostMediaDto>()).ToList();
+            post.RoomPricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
             post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             post.FoodPosts = (await multi.ReadAsync<FoodPostDto>()).ToList();

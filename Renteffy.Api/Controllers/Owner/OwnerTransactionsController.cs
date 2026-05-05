@@ -53,7 +53,7 @@ namespace Renteffy.Api.Controllers.Owner
         [HttpPost("GetPostsByOwnerId")]
         public async Task<IActionResult> GetPostsByOwnerId(int ownerId)
         {
-            if (ownerId==null)
+            if (ownerId == null)
                 return BadRequest("Invalid post data");
 
             var posts = await _getPostsByOwnerApplication.GetPostsByOwnerIdAsync(ownerId);
@@ -87,6 +87,54 @@ namespace Renteffy.Api.Controllers.Owner
                 return NotFound();
 
             return Ok(posts);
+        }
+
+        [Authorize]
+        [HttpPost("UpdatePost")]
+        public async Task<IActionResult> UpdatePostAsync([FromForm] string data, [FromForm] List<IFormFile> newFiles, [FromForm] List<int> replaceMediaIds, [FromForm] List<IFormFile> replaceMediaFiles)
+        {
+            try
+            {
+                var request = JsonSerializer.Deserialize<UpdatePostRequestDTO>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (request == null)
+                    return BadRequest("Invalid post data");
+                var replaceMedia = replaceMediaIds.Zip(replaceMediaFiles, (id, file) => (mediaId: id, file)).ToList();
+                var postId = await _readApp.UpdatePostAsync(request, replaceMedia, newFiles);
+                return Ok(new
+                {
+                    Success = postId <= 0 ? false : true,
+                    PostId = postId
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [Authorize]
+        //[AllowAnonymous]
+        [HttpPost("DeletePostById")]
+        public async Task<IActionResult> DeletePost(int postId,int userId)
+        {
+            var result = await _readApp.DeletePostAsync(postId, userId);
+
+            if (!result)
+                return BadRequest("Delete failed");
+
+            return Ok(new { message = "Post deleted successfully" ,Success=true,Result = 1});
+        }
+
+        [Authorize]
+        //[AllowAnonymous]
+        [HttpPost("UpdatePostStatus")]
+        public async Task<IActionResult> UpdateStatus(int postId,int userId, int status)
+        {
+            var result = await _readApp.UpdatePostStatusAsync(postId, userId, status);
+
+            if (!result)
+                return BadRequest("Failed");
+
+            return Ok(new { message = "Status updated successfully",Success = true,Result = 1 });
         }
     }
 }

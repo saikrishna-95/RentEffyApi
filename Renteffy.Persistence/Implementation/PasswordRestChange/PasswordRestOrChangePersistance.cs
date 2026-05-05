@@ -152,13 +152,20 @@ namespace Renteffy.Persistence.Implementation.PasswordRestChange
 
         public async Task<int> ChangePassword(ChangePasswordRequest request)
         {
-            var oldHash = BCrypt.Net.BCrypt.HashPassword(request.OldPassword);
-            var newHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             using var con = _dbFactory.CreateConnection();
+
+            var storedHash = await con.QueryFirstOrDefaultAsync<string>(
+                            "SELECT PasswordHash FROM Users WHERE UserId = @UserId",
+                            new { request.UserId });
+            if (storedHash == null)
+                return -1;
+            bool isValid = BCrypt.Net.BCrypt.Verify(request.OldPassword, storedHash);
+            if (!isValid)
+                return -2;
+            string newHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", request.UserId);
-            parameters.Add("@OldPasswordHash", request.OldPassword);
-            parameters.Add("@NewPasswordHash", request.NewPassword);
+            parameters.Add("@NewPasswordHash", newHash);
             parameters.Add("@ReturnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
 
             await con.ExecuteAsync("dbo.sp_ChangePassword",parameters,commandType: CommandType.StoredProcedure);

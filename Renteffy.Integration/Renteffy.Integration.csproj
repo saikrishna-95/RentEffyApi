@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Razorpay" Version="3.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Renteffy.Application\Renteffy.Application.csproj" />
     <ProjectReference Include="..\Renteffy.Shared\Renteffy.Shared.csproj" />
   </ItemGroup>

@@ -1,15 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BCrypt.Net;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.Entities.Registration;
 using Renteffy.Domain.Services.Interfaces.Authentication;
 using Renteffy.Domain.Services.PersistanceInterfaces.Authentication;
+using Renteffy.Shared.Security;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net;
-using Renteffy.Shared.Security;
 using System.Threading.Tasks;
 
 namespace Renteffy.Domain.Services.Implementation.Authentication
@@ -24,6 +25,12 @@ namespace Renteffy.Domain.Services.Implementation.Authentication
             _readRepo = readRepo;
             _config = config;
         }
+
+        public async Task<UserProfileResponseDto> GetUserProfile(int userId)
+            => await _readRepo.GetUserProfile(userId);
+
+        public async Task<UpdateUserProfileResponse2Dto> UpdateUserProfile(UpdateUserProfileResponseDto model)
+             => await _readRepo.UpdateUserProfile(model);
 
         public async Task<Users?> GetUserByUserIdAsync(int userId)
             => await _readRepo.GetUserByUserIdAsync(userId);
@@ -110,7 +117,7 @@ namespace Renteffy.Domain.Services.Implementation.Authentication
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        ValidateLifetime = false,
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = issuer,
                         ValidAudience = audience,

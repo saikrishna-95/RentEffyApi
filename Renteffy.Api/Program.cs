@@ -29,8 +29,10 @@ using Renteffy.Domain.Services.PersistanceInterfaces;
 using Renteffy.Domain.Services.PersistanceInterfaces.Authentication;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Domain.Services.PersistanceInterfaces.PasswordRestChange;
+using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
 using Renteffy.Domain.Services.PersistanceInterfaces.User;
 using Renteffy.Infrastructure.Security;
+using Renteffy.Integration.Payments;
 using Renteffy.Persistence.Implementation.Authentication;
 using Renteffy.Persistence.Implementation.Owner;
 using Renteffy.Persistence.Implementation.PasswordRestChange;
@@ -126,6 +128,7 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IJwtKeyGenerator, JwtKeyGenerator>();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+builder.Services.AddScoped<IRazorpayService, RazorpayService>();
 
 builder.Services.AddScoped<IUserAuthApplication, UserAuthApplication>();
 builder.Services.AddScoped<IUserRegistrationAapplication, UserRegistrationApplication>();
@@ -133,6 +136,7 @@ builder.Services.AddScoped<IPasswordRestOrChange, PasswordRestOrChange>();
 builder.Services.AddScoped<IAddPostApplication, AddPostApplication>();
 builder.Services.AddScoped<IGetOwnerPostsApplication, GetOwnerPostsApplication>();
 builder.Services.AddScoped<IGetPostsByOwnerApplication, GetPostsByOwnerApplication>();
+builder.Services.AddScoped<IUserBookingsAndPaymentsApplication, UserBookingsAndPaymentsApplication>();
 
 builder.Services.AddScoped<IUserAuthDomain, UserAuthDomain>();
 builder.Services.AddScoped<IUserRegistrationDomain, UserRegistrationDomain>();
@@ -140,6 +144,7 @@ builder.Services.AddScoped<IPasswordRestOrChangeDomain, PasswordRestOrChangeDoma
 builder.Services.AddScoped<IAddPostDomain, AddPostDomain>();
 builder.Services.AddScoped<IGetOwnerPostsDomain, GetOwnerPostsDomain>();
 builder.Services.AddScoped<IGetPostsByOwnerDomain, GetPostsByOwnerDomain>();
+builder.Services.AddScoped<IUserBookingsAndPaymentsDomain, UserBookingsAndPaymentsDomain>();
 
 builder.Services.AddScoped<IUserReadPersistance, UserReadPersistance>();
 builder.Services.AddScoped<IUserRegistrationPersistence, UserRegistrationPersistence>();
@@ -147,6 +152,7 @@ builder.Services.AddScoped<IPasswordRestOrChangePersistance,PasswordRestOrChange
 builder.Services.AddScoped<IAddPostPersistence, AddPostPersistance>();
 builder.Services.AddScoped<IGetOwnerPostsPersistence, GetOwnerPostsPersistence>();
 builder.Services.AddScoped<IGetPostsByOwnerPersistance, GetPostsByOwnerPersistance>();
+builder.Services.AddScoped<IUserBookingsAndPaymentsPersistance, UserBookingsAndPaymentsPersistance>();
 
 var app = builder.Build();
 //app.UseForwardedHeaders(new ForwardedHeadersOptions

@@ -8,6 +8,6 @@ namespace Renteffy.Domain.DTOs.Owner
     {
         public int PostId { get; set; }
         public int FoodId { get; set; }
-        
+        public string? Name { get; set; }
     }
 }
