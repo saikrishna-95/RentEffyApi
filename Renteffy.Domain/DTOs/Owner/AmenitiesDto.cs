@@ -8,5 +8,6 @@ namespace Renteffy.Domain.DTOs.Owner
     {
         public int PostId { get; set; }
         public int AmenityId { get; set; }
+        public string? Name { get; set; }
     }
 }

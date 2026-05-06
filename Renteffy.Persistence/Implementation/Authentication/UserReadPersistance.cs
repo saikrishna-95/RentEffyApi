@@ -1,6 +1,10 @@
-﻿using Dapper;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Dapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Renteffy.Application.Interfaces.Registration;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.Entities.Registration;
 using Renteffy.Domain.Services.PersistanceInterfaces.Authentication;
 using Renteffy.Shared.Database.DbConnection;
@@ -14,10 +18,12 @@ namespace Renteffy.Persistence.Implementation.Authentication
     public class UserReadPersistance:IUserReadPersistance
     {
         private readonly IDbConnectionFactory _dbFactory;
+        private readonly Cloudinary _cloudinary;
 
-        public UserReadPersistance(IDbConnectionFactory dbFactory)
+        public UserReadPersistance(IDbConnectionFactory dbFactory, Cloudinary cloudinary)
         {
             _dbFactory = dbFactory;
+            _cloudinary = cloudinary;
         }
 
         public async Task<Users?> GetUserByUserIdAsync(int userId)
@@ -57,5 +63,62 @@ namespace Renteffy.Persistence.Implementation.Authentication
             );
             return permissions.ToList();
         }
+
+        public async Task<UserProfileResponseDto> GetUserProfile(int userId)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var profile = await con.QueryFirstOrDefaultAsync<UserProfileResponseDto>(
+                "sp_GetUserProfile",
+                new { UserId = userId },
+                commandType: CommandType.StoredProcedure
+            );
+            return profile;
+        }
+
+        private async Task<string?> UploadProfileImageAsync(int userId, IFormFile file)
+        {
+            if (file == null) return null;
+
+            await using var stream = file.OpenReadStream();
+
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = $"users/{userId}/profile",
+                Overwrite = true,     // replace old image
+                Invalidate = true     // clear CDN cache
+            };
+
+            var result = await _cloudinary.UploadAsync(uploadParams);
+
+            return result.SecureUrl.ToString();
+        }
+
+        public async Task<UpdateUserProfileResponse2Dto> UpdateUserProfile(UpdateUserProfileResponseDto model)
+        {
+            using var con = _dbFactory.CreateConnection();
+            string? imageUrl = null;
+
+            if (model.Image != null)
+            {
+                imageUrl = await UploadProfileImageAsync(model.UserId, model.Image);
+            }
+            
+            var updatedprofile = await con.QueryFirstOrDefaultAsync<UpdateUserProfileResponse2Dto>(
+                "sp_UpdateUserProfile",
+                new
+                {
+                    model.UserId,
+                    model.FullName,
+                    model.Email,
+                    model.Mobile,
+                    ImageUrl = imageUrl
+                },
+                commandType: CommandType.StoredProcedure
+            );
+            return updatedprofile;
+        }
+
     }
 }

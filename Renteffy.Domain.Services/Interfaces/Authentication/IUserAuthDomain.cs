@@ -1,4 +1,5 @@
-﻿using Renteffy.Domain.Entities.Registration;
+﻿using Renteffy.Domain.DTOs.Owner.Response;
+using Renteffy.Domain.Entities.Registration;
 using Renteffy.Shared.Security;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,7 @@ namespace Renteffy.Domain.Services.Interfaces.Authentication
         Task<string> GenerateAccessToken(Users user);
         Task<string> GenerateRefreshToken(Users user);
         Task<LoginResponseDto?> GetRefreshToken(string refreshToken);
+        Task<UserProfileResponseDto> GetUserProfile(int userId);
+        Task<UpdateUserProfileResponse2Dto> UpdateUserProfile(UpdateUserProfileResponseDto model);
     }
 }

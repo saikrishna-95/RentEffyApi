@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Renteffy.Application.Interfaces.Authentication;
 using Renteffy.Application.Interfaces.PasswordRestChange;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Shared.Security;
 
 namespace Renteffy.Api.Controllers.Authentication
@@ -12,7 +13,12 @@ namespace Renteffy.Api.Controllers.Authentication
     public class PasswordRestOrChangeController : ControllerBase
     {
         private readonly IPasswordRestOrChange _service;
-        public PasswordRestOrChangeController(IPasswordRestOrChange service) => _service = service;
+        private readonly IUserAuthApplication _servieceapp;
+        public PasswordRestOrChangeController(IPasswordRestOrChange service, IUserAuthApplication servieceapp)
+        {
+            _service = service;
+            _servieceapp = servieceapp;
+        }
 
         [AllowAnonymous]
         [HttpPost("ForgotPassword")]
@@ -61,6 +67,7 @@ namespace Renteffy.Api.Controllers.Authentication
             });
         }
         [Authorize]
+        //[AllowAnonymous]
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
         {
@@ -86,6 +93,35 @@ namespace Renteffy.Api.Controllers.Authentication
                 Success = true,
                 Message = "Password changed successfully"
             });
+        }
+
+        [Authorize]
+        //[AllowAnonymous]
+        [HttpGet("GetUserProfile")]
+        public async Task<IActionResult> GetUser(int userid)
+        {
+            var user = await _servieceapp.GetUserProfile(userid);
+
+            if (user == null)
+                return NotFound("User not found");
+
+            return Ok(user);
+        }
+
+        //[Authorize]
+        [AllowAnonymous]
+        [HttpPost("UpdateUser")]
+        public async Task<IActionResult> UpdateUser(UpdateUserProfileResponseDto model)
+        {
+            try
+            {
+                var updatedUser = await _servieceapp.UpdateUserProfile(model);
+                return Ok(updatedUser); //-1 user not found, -2 email or mobile already exists
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

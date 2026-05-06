@@ -31,9 +31,9 @@ namespace Renteffy.Api.Controllers.Authentication
 
         [AllowAnonymous]
         [HttpPost("GetRefreshToken")]
-        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto request)
         {
-            var result = await _service.GetRefreshToken(refreshToken);
+            var result = await _service.GetRefreshToken(request.RefreshToken);
 
             if (result == null)
                 return Unauthorized(new
@@ -48,6 +48,5 @@ namespace Renteffy.Api.Controllers.Authentication
                 Data = result
             });
         }
-
     }
 }
