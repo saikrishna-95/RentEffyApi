@@ -18,13 +18,14 @@ namespace Renteffy.Domain.Services.Implementation.Registration
         public async Task<int> RegisterUserAsync(UserRegistrationRequest request)
         {
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
+            //request.VibeIds ??= new List<int>();
             var user = new Users
             {
                 FullName = request.FullName,
                 Email = request.Email,
                 Mobile = request.Mobile,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                VibeIds = request.VibeIds
             };
 
             return await _persistence.RegisterUserAsync(user);

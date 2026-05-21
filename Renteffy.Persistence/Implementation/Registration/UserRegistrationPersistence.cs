@@ -21,6 +21,19 @@ namespace Renteffy.Persistence.Implementation.Registration
             //_db = db;
             _dbFactory = dbFactory;
         }
+        private DataTable CreateVibesTable(List<int> vibeIds)
+        {
+            var table = new DataTable();
+
+            table.Columns.Add("VibeId", typeof(int));
+
+            foreach (var id in vibeIds)
+            {
+                table.Rows.Add(id);
+            }
+
+            return table;
+        }
         public async Task<int> RegisterUserAsync(Users user)
         {
             using var con = _dbFactory.CreateConnection();
@@ -31,6 +44,7 @@ namespace Renteffy.Persistence.Implementation.Registration
             parameters.Add("@Email", user.Email);
             parameters.Add("@PasswordHash", user.PasswordHash);
             parameters.Add("@Mobile", user.Mobile);
+            parameters.Add("@Vibes",CreateVibesTable(user.VibeIds).AsTableValuedParameter("dbo.VibeIdTableType"));
             //parameters.Add("@IsDeleted", user.IsDeleted);
 
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);

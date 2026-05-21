@@ -30,9 +30,11 @@ using Renteffy.Domain.Services.PersistanceInterfaces.Authentication;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Domain.Services.PersistanceInterfaces.PasswordRestChange;
 using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
+using Renteffy.Domain.Services.PersistanceInterfaces.Services;
 using Renteffy.Domain.Services.PersistanceInterfaces.User;
 using Renteffy.Infrastructure.Security;
 using Renteffy.Integration.Payments;
+using Renteffy.Integration.Services;
 using Renteffy.Persistence.Implementation.Authentication;
 using Renteffy.Persistence.Implementation.Owner;
 using Renteffy.Persistence.Implementation.PasswordRestChange;
@@ -129,6 +131,11 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IJwtKeyGenerator, JwtKeyGenerator>();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IRazorpayService, RazorpayService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReceiptService, ReceiptService>();
+builder.Services.AddScoped<IRefundService, RefundService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 builder.Services.AddScoped<IUserAuthApplication, UserAuthApplication>();
 builder.Services.AddScoped<IUserRegistrationAapplication, UserRegistrationApplication>();

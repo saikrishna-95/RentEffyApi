@@ -1,4 +1,6 @@
-﻿using Renteffy.Domain.DTOs.User.Response;
+﻿using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.Owner.Response;
+using Renteffy.Domain.DTOs.User.Response;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,8 @@ namespace Renteffy.Domain.Services.Interfaces.User
 {
     public interface IGetOwnerPostsDomain
     {
+        Task<List<AvailableBedResponseDTO>> GetAvailableBedsAsync(AvailableBedsRequestDTO request);
+
         Task<List<PublicPostResponseDto>> GetPublicPostsAsync();
         Task<List<ProductsResponseDTO>> GetProductsAsync(int postid);
         Task<int> LikePostAsync(int postId, int userId);
@@ -18,5 +22,7 @@ namespace Renteffy.Domain.Services.Interfaces.User
         Task<IEnumerable<dynamic>> GetOwnerRequestsAsync(int ownerId);
         Task<LikesCountResponseDTO> GetLikesCountAsync(int postId, int userId);
         Task<FavoritesCountResponseDTO> GetFavoritesCountAsync(int postId, int userId);
+        Task<List<VibeResponseDTO>> GetVibesAsync();
+        Task<List<MediaCategoryResponseDTO>> GetMediaCategoriesAsync();
     }
 }

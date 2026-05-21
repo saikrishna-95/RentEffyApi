@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Renteffy.Application.Interfaces.User;
 using Renteffy.Domain.DTOs.UserTrans.Request;
+using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Domain.Services.Interfaces.User;
 using Renteffy.Domain.Services.PersistanceInterfaces.User;
 using System;
@@ -28,5 +29,14 @@ namespace Renteffy.Application.Implementation.User
 
         public async Task<int> CancelBookingAsync(CancelBookingRequestDTO cancel)
             => await _readDomain.CancelBookingAsync(cancel);
+
+        public async Task<BookingReceiptDto> GetBookingReceiptDetailsAsync(int bookingId)
+            => await _readDomain.GetBookingReceiptDetailsAsync(bookingId);
+
+        public async Task SaveReceiptAsync(int bookingId, string receiptUrl)
+            => await _readDomain.SaveReceiptAsync(bookingId, receiptUrl);
+
+        public async Task<int> VacateAsync(VacateRequestDTO request)
+            => await _readDomain.VacateAsync(request);
     }
 }

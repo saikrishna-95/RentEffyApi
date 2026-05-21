@@ -1,4 +1,6 @@
-﻿namespace Renteffy.Domain.DTOs.Owner.Request
+﻿using Renteffy.Domain.DTOs.UserTrans.Request;
+
+namespace Renteffy.Domain.DTOs.Owner.Request
 {
     public class AddPostRequestDto
     {
@@ -23,5 +25,9 @@
 
         public List<StayingPeriodsPostDto> StayingPeriods { get; set; }
         public List<FoodPostDto> FoodPosts { get; set; }
+
+        public List<VibeDto> Vibes { get; set; }
+
+        public List<MediaMetaDto> mediaMetas { get; set; }
     }
 }

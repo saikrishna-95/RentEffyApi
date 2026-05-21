@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.UserTrans.Request;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Shared.Database.DbConnection;
 using System;
@@ -75,6 +76,15 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            var Vibestable = new DataTable();
+
+            Vibestable.Columns.Add("VibeId", typeof(int));
+
+            foreach (var id in request.Vibes)
+            {
+                Vibestable.Rows.Add(id.VibeId);
+            }
+
             var parameters = new DynamicParameters();
 
             parameters.Add("@OwnerId", request.UserId);
@@ -99,6 +109,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
             parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
             parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
+            parameters.Add("@Vibes", Vibestable.AsTableValuedParameter("VibeIdTableType"));
 
             var postId = await con.QuerySingleAsync<int>("sp_AddPostWithRoomPricing", parameters, commandType: CommandType.StoredProcedure);
 
@@ -111,9 +122,9 @@ namespace Renteffy.Persistence.Implementation.Owner
 
             await con.ExecuteAsync(@"
                 INSERT INTO T_PostMedia_TR
-                (PostId, MediaType, FileName, FilePath, ContentType)
+                (PostId, MediaType, FileName, FilePath, ContentType,MediaCategoryId)
                 VALUES
-                (@PostId, @MediaType, @FileName, @FilePath, @ContentType)",
+                (@PostId, @MediaType, @FileName, @FilePath, @ContentType,@MediaCategoryId)",
                 media
             );
         }
@@ -209,19 +220,25 @@ namespace Renteffy.Persistence.Implementation.Owner
                     MediaType = item.file.ContentType.StartsWith("video") ? "Video" : "Image",
                     FileName = uploadResult.PublicId,
                     FilePath = uploadResult.SecureUrl.ToString(),
-                    ContentType = item.file.ContentType
+                    ContentType = item.file.ContentType,
+                    MediaCategoryId = oldMedia.MediaCategoryId
                 });
             }
 
             return updatedList;
         }
 
-        private async Task<List<PostMediaDto>> AddNewMediaAsync(int postId, List<IFormFile> files)
+        private async Task<List<PostMediaDto>> AddNewMediaAsync(int postId, List<IFormFile> files, List<MediaMetaDto> mediaMeta)
         {
             var mediaList = new List<PostMediaDto>();
 
             foreach (var file in files)
             {
+                var meta = mediaMeta.FirstOrDefault(x => x.FileName == file.FileName);
+
+                if (meta == null)
+                    continue;
+
                 await using var stream = file.OpenReadStream();
 
                 RawUploadResult uploadResult;
@@ -246,6 +263,7 @@ namespace Renteffy.Persistence.Implementation.Owner
                 mediaList.Add(new PostMediaDto
                 {
                     PostId = postId,
+                    MediaCategoryId = meta.MediaCategoryId,
                     MediaType = file.ContentType.StartsWith("video") ? "Video" : "Image",
                     FileName = uploadResult.PublicId,
                     FilePath = uploadResult.SecureUrl.ToString(),
@@ -268,7 +286,8 @@ namespace Renteffy.Persistence.Implementation.Owner
                     MediaType = @MediaType,
                     FileName = @FileName,
                     FilePath = @FilePath,
-                    ContentType = @ContentType
+                    ContentType = @ContentType,
+                    MediaCategoryId = @MediaCategoryId
                 WHERE Id = @Id",
                         media
                     );
@@ -368,7 +387,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             await UpdatePostMediaAsync(replaced);
 
             // ADD new media
-            var added = await AddNewMediaAsync(postId, newFiles);
+            var added = await AddNewMediaAsync(postId, newFiles, request.MediaMetaData);
             await SavePostMediaAsync(added);
 
             return postId;
@@ -379,7 +398,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             using var con = _dbFactory.CreateConnection();
 
             var media = await con.QueryAsync<PostMediaDto>(
-                @"SELECT PostId, MediaType, FileName, FilePath, ContentType 
+                @"SELECT PostId, MediaType, FileName, FilePath, ContentType ,MediaCategoryId
                     FROM T_PostMedia_TR 
                    WHERE PostId = @PostId",
                 new { PostId = postId });

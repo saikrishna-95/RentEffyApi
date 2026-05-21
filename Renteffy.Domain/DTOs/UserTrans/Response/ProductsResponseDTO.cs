@@ -30,5 +30,7 @@ namespace Renteffy.Domain.DTOs.UserTrans.Response
         public List<AmenitiesDto> Amenities { get; set; } = [];
         public List<StayingPeriodsPostDto> stayingPeriods { get; set; } = [];
         public List<FoodPostDto> foodPosts { get; set; } = [];
+
+        //public List<BedAvailabilityDto> Beds { get; set; }
     }
 }

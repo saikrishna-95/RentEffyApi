@@ -12,5 +12,7 @@ namespace Renteffy.Domain.DTOs.Owner.Request
         public string FileName { get; set; } // PublicId
         public string FilePath { get; set; }
         public string ContentType { get; set; }
+
+        public int MediaCategoryId { get; set; }
     }
 }

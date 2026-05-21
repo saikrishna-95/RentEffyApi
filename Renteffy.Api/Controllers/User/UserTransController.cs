@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Renteffy.Application.Implementation.User;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.User;
+using Renteffy.Domain.DTOs.Owner.Request;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Persistence.RegistrationDbContext;
 using System.Data;
@@ -42,6 +44,19 @@ namespace Renteffy.Api.Controllers.User
                     .ToListAsync(),
             };
             return Ok(data);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetMediaCategories")]
+        public async Task<IActionResult>GetMediaCategories()
+        {
+            var result = await _readApp.GetMediaCategoriesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
         }
 
         [Authorize]
@@ -222,6 +237,32 @@ namespace Renteffy.Api.Controllers.User
         {
             var result = await _readApp.GetOwnerRequestsAsync(ownerId);
             return Ok(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetVibes")]
+        public async Task<IActionResult> GetVibes()
+        {
+            var result = await _readApp.GetVibesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetAvailableBeds")]
+        public async Task<IActionResult> GetAvailableBeds(AvailableBedsRequestDTO request)
+        {
+            var result = await _readApp.GetAvailableBedsAsync(request);
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
         }
     }
 }

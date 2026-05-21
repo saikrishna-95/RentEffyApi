@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Renteffy.Domain.DTOs.UserTrans.Request;
+using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
 using Renteffy.Domain.Services.PersistanceInterfaces.User;
 using Renteffy.Shared.Database.DbConnection;
@@ -30,6 +31,7 @@ namespace Renteffy.Persistence.Implementation.User
                     FloorId = request.FloorId,
                     RoomId = request.RoomId,
                     BedTypeId = request.BedTypeId,
+                    BedId = request.BedId,
                     StngPrdId = request.StngPrdId,
                     Price = request.Price,
                     FromDate= request.FromDate,
@@ -38,10 +40,10 @@ namespace Renteffy.Persistence.Implementation.User
                 commandType: CommandType.StoredProcedure
             );
 
-            if (bookingId > 0)
-            {
-                var order = _razorpay.CreateOrder(request.Price, bookingId.ToString());
-            }
+            //if (bookingId > 0)
+            //{
+            //    var order = _razorpay.CreateOrder(request.Price, bookingId.ToString());
+            //}
 
             return bookingId;
         }
@@ -49,9 +51,13 @@ namespace Renteffy.Persistence.Implementation.User
         public async Task<int> ConfirmBookingAsync(ConfirmBookingRequestDTO confirm)
         {
             using var con = _dbFactory.CreateConnection();
-            var result = await con.QueryFirstAsync<int>("sp_Pg_ConfirmBooking", 
-                new {
+            var result = await con.QueryFirstAsync<int>("sp_Pg_ConfirmBooking",
+                new
+                {
                     BookingId = confirm.BookingId,
+                    RazorpayOrderId = confirm.RazorpayOrderId,
+                    RazorpayPaymentId = confirm.RazorpayPaymentId,
+                    RazorpaySignature = confirm.RazorpaySignature,
                     TransactionId = confirm.TransactionId
                 },
                 commandType: CommandType.StoredProcedure
@@ -65,10 +71,57 @@ namespace Renteffy.Persistence.Implementation.User
             var result = await con.QueryFirstAsync<int>("sp_Pg_CancelBooking",
                 new {
                     BookingId = cancel.BookingId,
-                    UserId = cancel.UserId
+                    UserId = cancel.UserId,
+                    Reason = cancel.Reason
                 },
                 commandType: CommandType.StoredProcedure
             );
+            return result;
+        }
+
+        public async Task<BookingReceiptDto>GetBookingReceiptDetailsAsync(int bookingId)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result =
+                await con.QueryFirstOrDefaultAsync<BookingReceiptDto>(
+                    "sp_GetBookingReceiptDetails",
+                    new
+                    {
+                        BookingId = bookingId
+                    },
+                    commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
+
+        public async Task SaveReceiptAsync(int bookingId,string receiptUrl)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            await con.ExecuteAsync(
+                "sp_SaveReceipt",
+                new
+                {
+                    BookingId = bookingId,
+                    ReceiptUrl = receiptUrl
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int> VacateAsync(VacateRequestDTO request)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result =
+                await con.QueryFirstAsync<int>(
+                    "sp_Pg_Vacate",
+                    new
+                    {
+                        BookingId = request.BookingId
+                    },
+                    commandType: CommandType.StoredProcedure);
+
             return result;
         }
     }

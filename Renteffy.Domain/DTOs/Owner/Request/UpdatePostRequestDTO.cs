@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Renteffy.Domain.DTOs.UserTrans.Request;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -33,5 +34,6 @@ namespace Renteffy.Domain.DTOs.Owner.Request
         public List<StayingPeriodsPostDto> StayingPeriods { get; set; }
         public List<FoodPostDto> FoodPosts { get; set; }
         public List<int> DeleteMediaIds { get; set; } = new();
+        public List<MediaMetaDto> MediaMetaData { get; set; }
     }
 }

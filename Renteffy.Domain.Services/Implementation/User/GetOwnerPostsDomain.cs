@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.DTOs.User.Response;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Domain.Services.Interfaces.User;
@@ -22,6 +23,9 @@ namespace Renteffy.Domain.Services.Implementation.User
             _readRepo = readRepo;
             _config = config;
         }
+        public async Task<List<AvailableBedResponseDTO>> GetAvailableBedsAsync(AvailableBedsRequestDTO request)
+            => await _readRepo.GetAvailableBedsAsync(request);
+
         public async Task<List<PublicPostResponseDto>> GetPublicPostsAsync()
             => await _readRepo.GetPublicPostsAsync();
 
@@ -68,5 +72,12 @@ namespace Renteffy.Domain.Services.Implementation.User
             return await _readRepo.GetOwnerRequestsAsync(ownerId);
         }
 
+        public async Task<List<VibeResponseDTO>> GetVibesAsync()
+        {
+            return await _readRepo.GetVibesAsync();
+        }
+
+        public async Task<List<MediaCategoryResponseDTO>> GetMediaCategoriesAsync()
+            => await _readRepo.GetMediaCategoriesAsync();
     }
 }

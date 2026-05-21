@@ -28,5 +28,14 @@ namespace Renteffy.Domain.Services.Implementation.User
 
         public async Task<int> CancelBookingAsync(CancelBookingRequestDTO cancel)
             => await _readRepo.CancelBookingAsync(cancel);
+
+        public async Task<BookingReceiptDto> GetBookingReceiptDetailsAsync(int bookingId)
+            => await _readRepo.GetBookingReceiptDetailsAsync(bookingId);
+
+        public async Task SaveReceiptAsync(int bookingId, string receiptUrl)
+            => await _readRepo.SaveReceiptAsync(bookingId, receiptUrl);
+
+        public async Task<int> VacateAsync(VacateRequestDTO request)
+            => await _readRepo.VacateAsync(request);
     }
 }
