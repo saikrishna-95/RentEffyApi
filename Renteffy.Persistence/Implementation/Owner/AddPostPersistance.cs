@@ -46,6 +46,25 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            var roomStayingPeriodPricingTable = new DataTable();
+
+            roomStayingPeriodPricingTable.Columns.Add("FloorId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("RoomId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("StngPrdId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("Price", typeof(decimal));
+            roomStayingPeriodPricingTable.Columns.Add("IsAvailable", typeof(bool));
+
+            foreach (var pricing in request.RoomStayingPeriodPricing)
+            {
+                roomStayingPeriodPricingTable.Rows.Add(
+                    pricing.FloorId,
+                    pricing.RoomId,
+                    pricing.StngPrdId,
+                    pricing.Price,
+                    pricing.IsAvailable
+                );
+            }
+
             var amenitiesTable = new DataTable();
             amenitiesTable.Columns.Add("AmenityId", typeof(int));
 
@@ -106,11 +125,12 @@ namespace Renteffy.Persistence.Implementation.Owner
             parameters.Add("@Status", 1);
             // 🔑 TVP parameter
             parameters.Add("@RoomPricing", pricingTable.AsTableValuedParameter("RoomPricingList"));
+            parameters.Add("@RoomStayingPeriodPricing", roomStayingPeriodPricingTable.AsTableValuedParameter("RoomStayingPeriodPricingList"));
             parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
             parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
             parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
             parameters.Add("@Vibes", Vibestable.AsTableValuedParameter("VibeIdTableType"));
-
+            
             var postId = await con.QuerySingleAsync<int>("sp_AddPostWithRoomPricing", parameters, commandType: CommandType.StoredProcedure);
 
             return postId;
@@ -315,6 +335,25 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            var roomStayingPeriodPricingTable = new DataTable();
+
+            roomStayingPeriodPricingTable.Columns.Add("FloorId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("RoomId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("StngPrdId", typeof(int));
+            roomStayingPeriodPricingTable.Columns.Add("Price", typeof(decimal));
+            roomStayingPeriodPricingTable.Columns.Add("IsAvailable", typeof(bool));
+
+            foreach (var pricing in request.RoomStayingPeriodPricing)
+            {
+                roomStayingPeriodPricingTable.Rows.Add(
+                    pricing.FloorId,
+                    pricing.RoomId,
+                    pricing.StngPrdId,
+                    pricing.Price,
+                    pricing.IsAvailable
+                );
+            }
+
             var amenitiesTable = new DataTable();
             amenitiesTable.Columns.Add("AmenityId", typeof(int));
 
@@ -368,14 +407,12 @@ namespace Renteffy.Persistence.Implementation.Owner
             parameters.Add("@TotalRooms", request.TotalRooms);
 
             parameters.Add("@RoomPricing", pricingTable.AsTableValuedParameter("RoomPricingList"));
+            parameters.Add("@RoomStayingPeriodPricing", roomStayingPeriodPricingTable.AsTableValuedParameter("RoomStayingPeriodPricingList"));
             parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
             parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
             parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
 
-            var postId = await con.QuerySingleAsync<int>(
-                "sp_UpdatePostWithRoomPricing",
-                parameters,
-                commandType: CommandType.StoredProcedure);
+            var postId = await con.QuerySingleAsync<int>("sp_UpdatePostWithRoomPricing",parameters,commandType: CommandType.StoredProcedure);
 
             // DELETE selected media
             await DeleteMediaAsync(request.DeleteMediaIds);
@@ -441,8 +478,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             // Delete from Cloudinary
             await DeleteMediaFromCloudinaryAsync(mediaList);
             // Delete from DB
-            var result = await con.QuerySingleAsync<int>(
-                "sp_DeletePoste",
+            var result = await con.QuerySingleAsync<int>("sp_DeletePoste",
                 new { PostId = postId, UserId = userId },
                 commandType: CommandType.StoredProcedure
             );
@@ -453,8 +489,7 @@ namespace Renteffy.Persistence.Implementation.Owner
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QuerySingleAsync<int>(
-                "sp_UpdatePostActiveInActiveStatus",
+            var result = await con.QuerySingleAsync<int>("sp_UpdatePostActiveInActiveStatus",
                 new
                 {
                     PostId = postId,

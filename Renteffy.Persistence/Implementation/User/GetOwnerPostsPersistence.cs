@@ -25,8 +25,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryAsync<AvailableBedResponseDTO>(
-                "sp_Pg_GetAvailableBeds",
+            var result = await con.QueryAsync<AvailableBedResponseDTO>("sp_Pg_GetAvailableBeds",
                 new
                 {
                     PostId = request.PostId,
@@ -45,8 +44,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            using var multi = await con.QueryMultipleAsync(
-                "sp_GetPublicPosts",
+            using var multi = await con.QueryMultipleAsync("sp_GetPublicPosts",
                 commandType: CommandType.StoredProcedure
             );
 
@@ -55,6 +53,7 @@ namespace Renteffy.Persistence.Implementation.User
             var pricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
+            var RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
             var vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
             var beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
@@ -65,6 +64,7 @@ namespace Renteffy.Persistence.Implementation.User
                 post.Pricing = pricing.Where(p => p.PostId == post.PostId).ToList();
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
+                post.RoomStayingPeriodPricing = RoomStayingPeriodPricing.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
                 post.Vibes = vibes.Where(v => v.PostId == post.PostId).ToList();
                 post.Beds = beds.Where(p => p.PostId == post.PostId).ToList();
@@ -77,8 +77,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            using var multi = await con.QueryMultipleAsync(
-                "sp_GetProducts",
+            using var multi = await con.QueryMultipleAsync("sp_GetProducts",
                 new { PostId = postid },
                 commandType: CommandType.StoredProcedure
             );
@@ -86,6 +85,7 @@ namespace Renteffy.Persistence.Implementation.User
             var posts = (await multi.ReadAsync<ProductsResponseDTO>()).ToList();
             var media = (await multi.ReadAsync<PostMediaDto>()).ToList();
             var pricing = (await multi.ReadAsync<ProcuctRoomPriceingReponseDTO>()).ToList();
+            var RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
@@ -95,6 +95,7 @@ namespace Renteffy.Persistence.Implementation.User
             {
                 post.Media = media.Where(m => m.PostId == post.PostId).ToList();
                 post.Pricing = pricing.Where(p => p.PostId == post.PostId).ToList();
+                post.RoomStayingPeriodPricing = RoomStayingPeriodPricing.Where(p => p.PostId == post.PostId).ToList();
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
@@ -108,8 +109,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryFirstAsync<int>(
-                "sp_LikePost",
+            var result = await con.QueryFirstAsync<int>("sp_LikePost",
                 new { PostId = postId, UserId = userId },
                 commandType: CommandType.StoredProcedure
             );
@@ -121,8 +121,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryFirstAsync<LikesCountResponseDTO>(
-                "sp_GetLikesCount",
+            var result = await con.QueryFirstAsync<LikesCountResponseDTO>("sp_GetLikesCount",
                 new { PostId = postId, UserId = userId },
                 commandType: CommandType.StoredProcedure
             );
@@ -134,8 +133,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryFirstAsync<int>(
-                "sp_FavoritePost",
+            var result = await con.QueryFirstAsync<int>("sp_FavoritePost",
                 new { PostId = postId, UserId = userId },
                 commandType: CommandType.StoredProcedure
             );
@@ -147,8 +145,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryFirstAsync<FavoritesCountResponseDTO>(
-                "sp_GetFavoritesCount",
+            var result = await con.QueryFirstAsync<FavoritesCountResponseDTO>("sp_GetFavoritesCount",
                 new { PostId = postId, UserId = userId },
                 commandType: CommandType.StoredProcedure
             );
@@ -160,8 +157,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var id = await con.QueryFirstAsync<int>(
-                "sp_AddComment",
+            var id = await con.QueryFirstAsync<int>("sp_AddComment",
                 new { PostId = postId, UserId = userId, Comment = comment },
                 commandType: CommandType.StoredProcedure
             );
@@ -173,8 +169,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var list = await con.QueryAsync(
-                "sp_GetComments",
+            var list = await con.QueryAsync("sp_GetComments",
                 new { PostId = postId },
                 commandType: CommandType.StoredProcedure
             );
@@ -186,8 +181,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryFirstAsync<int>(
-                "sp_SendRequest",
+            var result = await con.QueryFirstAsync<int>("sp_SendRequest",
                 new { PostId = postId, UserId = userId, Message = message },
                 commandType: CommandType.StoredProcedure
             );
@@ -199,8 +193,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var list = await con.QueryAsync(
-                "sp_GetOwnerRequests",
+            var list = await con.QueryAsync("sp_GetOwnerRequests",
                 new { OwnerId = ownerId },
                 commandType: CommandType.StoredProcedure
             );
@@ -212,8 +205,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryAsync<VibeResponseDTO>(
-                "sp_GetVibes",
+            var result = await con.QueryAsync<VibeResponseDTO>("sp_GetVibes",
                 commandType: CommandType.StoredProcedure
             );
 
@@ -224,8 +216,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryAsync<MediaCategoryResponseDTO>(
-                    "sp_GetMediaCategories",
+            var result = await con.QueryAsync<MediaCategoryResponseDTO>("sp_GetMediaCategories",
                     commandType: CommandType.StoredProcedure);
 
             return result.ToList();

@@ -35,8 +35,8 @@ namespace Renteffy.Domain.DTOs.Owner.Response
         public List<PostMediaDto> Media { get; set; }
         public List<AmenitiesDto> Amenities { get; set; }
         public List<StayingPeriodsPostDto> StayingPeriods { get; set; }
+        public List<RoomStayingPeriodPricingResponseDto> RoomStayingPeriodPricing { get; set; } = [];
         public List<FoodPostDto> FoodPosts { get; set; }
-
         public List<VibesResponseDTO> Vibes { get; set; }
         public List<BedAvailabilityDto> Beds { get; set; }
     }

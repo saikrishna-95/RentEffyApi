@@ -26,7 +26,7 @@ namespace Renteffy.Domain.DTOs.User.Response
 
         public List<PostMediaDto> Media { get; set; } = [];
         public List<RoomPricingDto> Pricing { get; set; } = [];
-
+        public List<RoomStayingPeriodPricingResponseDto> RoomStayingPeriodPricing { get; set; } = [];
         public List<AmenitiesDto> Amenities { get; set; } = [];
         public List<StayingPeriodsPostDto> stayingPeriods { get; set; } = [];
         public List<FoodPostDto> foodPosts { get; set; } = [];
