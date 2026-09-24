@@ -27,8 +27,7 @@ namespace Renteffy.Persistence.Implementation.Owner
         {
             using var con = _dbFactory.CreateConnection();
 
-            using var multi = await con.QueryMultipleAsync(
-                "sp_GetPostsByOwnerId",
+            using var multi = await con.QueryMultipleAsync("sp_GetPostsByOwnerId",
                 new { OwnerId = ownerId },
                 commandType: CommandType.StoredProcedure
             );
@@ -36,6 +35,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             var posts = (await multi.ReadAsync<PublicPostResponseDto>()).ToList();
             var media = (await multi.ReadAsync<PostMediaDto>()).ToList();
             var pricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
+            var RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
@@ -47,6 +47,7 @@ namespace Renteffy.Persistence.Implementation.Owner
                 post.Pricing = pricing.Where(p => p.PostId == post.PostId).ToList();
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
+                post.RoomStayingPeriodPricing = RoomStayingPeriodPricing.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
                 post.Vibes = vibes.Where(v => v.PostId == post.PostId).ToList();
             }
@@ -57,8 +58,7 @@ namespace Renteffy.Persistence.Implementation.Owner
         {
             using var connection = _dbFactory.CreateConnection();
 
-            using var multi = await connection.QueryMultipleAsync(
-                                    "sp_GetPostForEdit",
+            using var multi = await connection.QueryMultipleAsync("sp_GetPostForEdit",
                                     new { PostId = postId },
                                     commandType: CommandType.StoredProcedure);
 
@@ -67,6 +67,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             post.RoomPricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
             post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
+            post.RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
             post.FoodPosts = (await multi.ReadAsync<FoodPostDto>()).ToList();
             post.Vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
             post.Beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
@@ -78,13 +79,8 @@ namespace Renteffy.Persistence.Implementation.Owner
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result =
-                await con.QueryAsync<OwnerBookingResponseDTO>(
-                    "sp_Pg_GetOwnerBookings",
-                    new
-                    {
-                        OwnerId = ownerId
-                    },
+            var result = await con.QueryAsync<OwnerBookingResponseDTO>("sp_Pg_GetOwnerBookings",
+                    new{OwnerId = ownerId},
                     commandType: CommandType.StoredProcedure);
 
             return result.ToList();
@@ -94,8 +90,7 @@ namespace Renteffy.Persistence.Implementation.Owner
         {
             using var con = _dbFactory.CreateConnection();
 
-            return await con.QueryFirstAsync<int>(
-                "sp_Pg_CheckIn",
+            return await con.QueryFirstAsync<int>("sp_Pg_CheckIn",
                 new
                 {
                     BookingId = request.BookingId,

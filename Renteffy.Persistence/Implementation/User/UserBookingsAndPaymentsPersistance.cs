@@ -164,12 +164,8 @@ namespace Renteffy.Persistence.Implementation.User
             using var con = _dbFactory.CreateConnection();
 
             var result =
-                await con.QueryFirstOrDefaultAsync<BookingReceiptDto>(
-                    "sp_GetBookingReceiptDetails",
-                    new
-                    {
-                        BookingId = bookingId
-                    },
+                await con.QueryFirstOrDefaultAsync<BookingReceiptDto>("sp_GetBookingReceiptDetails",
+                    new{BookingId = bookingId},
                     commandType: CommandType.StoredProcedure);
 
             return result;
@@ -179,8 +175,7 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            await con.ExecuteAsync(
-                "sp_SaveReceipt",
+            await con.ExecuteAsync("sp_SaveReceipt",
                 new
                 {
                     BookingId = bookingId,
@@ -194,8 +189,7 @@ namespace Renteffy.Persistence.Implementation.User
             using var con = _dbFactory.CreateConnection();
 
             var result =
-                await con.QueryFirstAsync<int>(
-                    "sp_Pg_Vacate",
+                await con.QueryFirstAsync<int>("sp_Pg_Vacate",
                     new
                     {
                         BookingId = request.BookingId
@@ -209,12 +203,8 @@ namespace Renteffy.Persistence.Implementation.User
         {
             using var con = _dbFactory.CreateConnection();
 
-            var result = await con.QueryAsync<MyBookingResponseDto>(
-                "dbo.sp_GetMyBookings",
-                new
-                {
-                    UserId = userId
-                },
+            var result = await con.QueryAsync<MyBookingResponseDto>("dbo.sp_GetMyBookings",
+                new{UserId = userId},
                 commandType: CommandType.StoredProcedure
             );
 

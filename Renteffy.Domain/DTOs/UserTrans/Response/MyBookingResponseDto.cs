@@ -19,17 +19,13 @@ namespace Renteffy.Domain.DTOs.UserTrans.Response
         public int BedId { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
-
         public decimal Price { get; set; }
-
+        public int StngPrdId { get; set; }
+        public string? StayingPeriodName { get; set; }
         public string? FilePath { get; set; }
-
         public int Status { get; set; }
-
         public int PaymentStatus { get; set; }
-
         public string OwnerName { get; set; } = default!;
-
         public string Mobile { get; set; } = default!;
     }
 }

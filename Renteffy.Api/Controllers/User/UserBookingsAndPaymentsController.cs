@@ -178,13 +178,10 @@ namespace Renteffy.Api.Controllers.User
             try
             {
                 var result = await _readApp.VacateAsync(request);
-
                 return Ok(new
                 {
                     success = result == 1,
-                    message = result == 1
-                        ? "Vacated Successfully"
-                        : "Failed"
+                    message = result == 1 ? "Vacated Successfully" : "Failed"
                 });
             }
             catch (Exception ex)
@@ -203,7 +200,6 @@ namespace Renteffy.Api.Controllers.User
         public async Task<IActionResult> GetMyBookings(int userId)
         {
             var result = await _readApp.GetMyBookingsAsync(userId);
-
             return Ok(new
             {
                 success = true,
