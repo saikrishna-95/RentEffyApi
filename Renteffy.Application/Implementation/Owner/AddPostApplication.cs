@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.UserTrans.Request;
 using Renteffy.Domain.Services.Interfaces.Owner;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Shared.Security;
@@ -35,14 +36,14 @@ namespace Renteffy.Application.Implementation.Owner
             _environment = environment;
             _cloudinary = cloudinary;
         }
-        public async Task<int> AddPostAsync(AddPostRequestDto request, List<IFormFile> files)
+        public async Task<int> AddPostAsync(AddPostRequestDto request, List<IFormFile> files, List<MediaMetaDto> mediaMeta)
         {
             var postId = await _domn.AddPostAsync(request);
             if (postId > 0)
             {
                 if (files != null && files.Count > 0)
                 {
-                    var media = await SaveFilesAsync(postId, files);
+                    var media = await SaveFilesAsync(postId, files, mediaMeta);
 
                     await _repo.SavePostMediaAsync(media);
                 }
@@ -50,12 +51,17 @@ namespace Renteffy.Application.Implementation.Owner
             return postId;
         }
 
-        private async Task<List<PostMediaDto>> SaveFilesAsync(int postId, List<IFormFile> files)
+        private async Task<List<PostMediaDto>> SaveFilesAsync(int postId, List<IFormFile> files, List<MediaMetaDto> mediaMeta)
         {
             var mediaList = new List<PostMediaDto>();
 
             foreach (var file in files)
             {
+                var meta = mediaMeta.FirstOrDefault(x => x.FileName == file.FileName);
+
+                if (meta == null)
+                    continue;
+
                 await using var stream = file.OpenReadStream();
 
                 RawUploadResult uploadResult;
@@ -84,6 +90,7 @@ namespace Renteffy.Application.Implementation.Owner
                 mediaList.Add(new PostMediaDto
                 {
                     PostId = postId,
+                    MediaCategoryId = meta.MediaCategoryId,
                     MediaType = file.ContentType.StartsWith("video") ? "Video" : "Image",
                     FileName = uploadResult.PublicId,
                     FilePath = uploadResult.SecureUrl.ToString(),

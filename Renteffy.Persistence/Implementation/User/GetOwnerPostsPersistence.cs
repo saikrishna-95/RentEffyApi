@@ -21,6 +21,26 @@ namespace Renteffy.Persistence.Implementation.User
         {
             _dbFactory = dbFactory;
         }
+        public async Task<List<AvailableBedResponseDTO>> GetAvailableBedsAsync(AvailableBedsRequestDTO request)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result = await con.QueryAsync<AvailableBedResponseDTO>(
+                "sp_Pg_GetAvailableBeds",
+                new
+                {
+                    PostId = request.PostId,
+                    FloorId = request.FloorId,
+                    RoomId = request.RoomId,
+                    BedTypeId = request.BedTypeId,
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result.ToList();
+        }
         public async Task<List<PublicPostResponseDto>> GetPublicPostsAsync()
         {
             using var con = _dbFactory.CreateConnection();
@@ -36,6 +56,8 @@ namespace Renteffy.Persistence.Implementation.User
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
+            var vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
+            var beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
 
             foreach (var post in posts)
             {
@@ -44,6 +66,8 @@ namespace Renteffy.Persistence.Implementation.User
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
+                post.Vibes = vibes.Where(v => v.PostId == post.PostId).ToList();
+                post.Beds = beds.Where(p => p.PostId == post.PostId).ToList();
             }
 
             return posts;
@@ -65,6 +89,7 @@ namespace Renteffy.Persistence.Implementation.User
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
+            //var beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
 
             foreach (var post in posts)
             {
@@ -73,6 +98,7 @@ namespace Renteffy.Persistence.Implementation.User
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
+                //post.Beds = beds.Where(p => p.PostId == post.PostId).ToList();
             }
 
             return posts;
@@ -182,5 +208,27 @@ namespace Renteffy.Persistence.Implementation.User
             return list;
         }
 
+        public async Task<List<VibeResponseDTO>> GetVibesAsync()
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result = await con.QueryAsync<VibeResponseDTO>(
+                "sp_GetVibes",
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result.ToList();
+        }
+
+        public async Task<List<MediaCategoryResponseDTO>>GetMediaCategoriesAsync()
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result = await con.QueryAsync<MediaCategoryResponseDTO>(
+                    "sp_GetMediaCategories",
+                    commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
+        }
     }
 }

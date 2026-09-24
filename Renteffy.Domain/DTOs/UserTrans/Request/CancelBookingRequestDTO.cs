@@ -8,5 +8,6 @@ namespace Renteffy.Domain.DTOs.UserTrans.Request
     {
         public int BookingId { get; set; }
         public int UserId { get; set; }
+        public string Reason { get; set; }
     }
 }

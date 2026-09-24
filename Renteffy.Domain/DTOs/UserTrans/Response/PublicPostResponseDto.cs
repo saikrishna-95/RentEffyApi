@@ -1,5 +1,7 @@
 ﻿using Renteffy.Domain.DTOs.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.Owner.Response;
+using Renteffy.Domain.DTOs.UserTrans.Request;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,5 +30,9 @@ namespace Renteffy.Domain.DTOs.User.Response
         public List<AmenitiesDto> Amenities { get; set; } = [];
         public List<StayingPeriodsPostDto> stayingPeriods { get; set; } = [];
         public List<FoodPostDto> foodPosts { get; set; } = [];
+
+        public List<VibesResponseDTO> Vibes { get; set; } = [];
+
+        public List<BedAvailabilityDto> Beds { get; set; } = [];
     }
 }

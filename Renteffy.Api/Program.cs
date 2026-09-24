@@ -1,42 +1,53 @@
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using QuestPDF.Infrastructure;
 using Renteffy.Application.Implementation.Authetication;
 using Renteffy.Application.Implementation.Owner;
 using Renteffy.Application.Implementation.PasswordRestChange;
 using Renteffy.Application.Implementation.Registration;
+using Renteffy.Application.Implementation.Rental;
 using Renteffy.Application.Implementation.User;
 using Renteffy.Application.Interfaces.Authentication;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.PasswordRestChange;
 using Renteffy.Application.Interfaces.Registration;
+using Renteffy.Application.Interfaces.Rental;
 using Renteffy.Application.Interfaces.User;
 using Renteffy.Domain.Services.Implementation.Authentication;
 using Renteffy.Domain.Services.Implementation.Owner;
 using Renteffy.Domain.Services.Implementation.PasswordRestChange;
 using Renteffy.Domain.Services.Implementation.Registration;
+using Renteffy.Domain.Services.Implementation.Rental;
 using Renteffy.Domain.Services.Implementation.User;
 using Renteffy.Domain.Services.Interfaces.Authentication;
 using Renteffy.Domain.Services.Interfaces.Owner;
 using Renteffy.Domain.Services.Interfaces.PasswordRestChange;
 using Renteffy.Domain.Services.Interfaces.Registration;
+using Renteffy.Domain.Services.Interfaces.Rental;
 using Renteffy.Domain.Services.Interfaces.User;
 using Renteffy.Domain.Services.PersistanceInterfaces;
 using Renteffy.Domain.Services.PersistanceInterfaces.Authentication;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
 using Renteffy.Domain.Services.PersistanceInterfaces.PasswordRestChange;
 using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
+using Renteffy.Domain.Services.PersistanceInterfaces.Rental;
+using Renteffy.Domain.Services.PersistanceInterfaces.Services;
 using Renteffy.Domain.Services.PersistanceInterfaces.User;
 using Renteffy.Infrastructure.Security;
 using Renteffy.Integration.Payments;
+using Renteffy.Integration.Services;
+using Renteffy.Integration.Services.jobs;
 using Renteffy.Persistence.Implementation.Authentication;
 using Renteffy.Persistence.Implementation.Owner;
 using Renteffy.Persistence.Implementation.PasswordRestChange;
 using Renteffy.Persistence.Implementation.Registration;
+using Renteffy.Persistence.Implementation.Rental;
 using Renteffy.Persistence.Implementation.User;
 using Renteffy.Persistence.RegistrationDbContext;
 using Renteffy.Shared.Database.DbConnection;
@@ -45,6 +56,15 @@ using System.IO;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 524288000;
+});
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 524288000;
+});
 //builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
 //var fileOptions = builder.Configuration.GetSection("FileStorage").Get<FileStorageOptions>();
 //var folderName = builder.Configuration["FileStorage:FolderName"];
@@ -97,8 +117,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 var jwt = builder.Configuration.GetSection("JwtSettings");
 var key = Encoding.UTF8.GetBytes(jwt["SecretKey"]!);
@@ -110,8 +129,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-builder.Services.AddAuthentication("Bearer")
-.AddJwtBearer(options =>
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -126,9 +144,16 @@ builder.Services.AddAuthentication("Bearer")
     };
 });
 builder.Services.AddMemoryCache();
+
+builder.Services.AddHostedService<PropertyBookingExpiryService>();
 builder.Services.AddScoped<IJwtKeyGenerator, JwtKeyGenerator>();
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IRazorpayService, RazorpayService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReceiptService, ReceiptService>();
+builder.Services.AddScoped<IRefundService, RefundService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 builder.Services.AddScoped<IUserAuthApplication, UserAuthApplication>();
 builder.Services.AddScoped<IUserRegistrationAapplication, UserRegistrationApplication>();
@@ -137,6 +162,9 @@ builder.Services.AddScoped<IAddPostApplication, AddPostApplication>();
 builder.Services.AddScoped<IGetOwnerPostsApplication, GetOwnerPostsApplication>();
 builder.Services.AddScoped<IGetPostsByOwnerApplication, GetPostsByOwnerApplication>();
 builder.Services.AddScoped<IUserBookingsAndPaymentsApplication, UserBookingsAndPaymentsApplication>();
+builder.Services.AddScoped<IAddPropertyApplication, AddPropertyApplication>();
+builder.Services.AddScoped<IGetAllPropertiesApplication, GetAllPropertiesApplication>();    
+builder.Services.AddScoped<IPropertyBookingApplication, PropertyBookingApplication>();
 
 builder.Services.AddScoped<IUserAuthDomain, UserAuthDomain>();
 builder.Services.AddScoped<IUserRegistrationDomain, UserRegistrationDomain>();
@@ -145,6 +173,8 @@ builder.Services.AddScoped<IAddPostDomain, AddPostDomain>();
 builder.Services.AddScoped<IGetOwnerPostsDomain, GetOwnerPostsDomain>();
 builder.Services.AddScoped<IGetPostsByOwnerDomain, GetPostsByOwnerDomain>();
 builder.Services.AddScoped<IUserBookingsAndPaymentsDomain, UserBookingsAndPaymentsDomain>();
+builder.Services.AddScoped<IAddPropertyDomain, AddPropertyDomain>();
+builder.Services.AddScoped<IGetAllPropertiesDomain, GetAllPropertiesDomain>();
 
 builder.Services.AddScoped<IUserReadPersistance, UserReadPersistance>();
 builder.Services.AddScoped<IUserRegistrationPersistence, UserRegistrationPersistence>();
@@ -153,6 +183,9 @@ builder.Services.AddScoped<IAddPostPersistence, AddPostPersistance>();
 builder.Services.AddScoped<IGetOwnerPostsPersistence, GetOwnerPostsPersistence>();
 builder.Services.AddScoped<IGetPostsByOwnerPersistance, GetPostsByOwnerPersistance>();
 builder.Services.AddScoped<IUserBookingsAndPaymentsPersistance, UserBookingsAndPaymentsPersistance>();
+builder.Services.AddScoped<IAddPostPropertyPersistence, AddPostPropertyPersistence>();
+builder.Services.AddScoped<IGetAllPropertiesPersistance, GetAllPropertiesPersistance>();
+builder.Services.AddScoped<IPropertyBookingPersistence, PropertyBookingPersistence>();
 
 var app = builder.Build();
 //app.UseForwardedHeaders(new ForwardedHeadersOptions

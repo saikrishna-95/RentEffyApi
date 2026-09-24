@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
 using Razorpay.Api;
 using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
 using System.Security.Cryptography;
@@ -10,24 +11,31 @@ namespace Renteffy.Integration.Payments
     {
         private readonly string _key;
         private readonly string _secret;
+        private readonly RazorpayClient _client;
+        private readonly IConfiguration _configuration;
 
         public RazorpayService(IConfiguration config)
         {
-            _key = config["Razorpay:Key"];
-            _secret = config["Razorpay:Secret"];
+            _configuration = config;
+
+            _key = _configuration["Razorpay:Key"];
+            _secret = _configuration["Razorpay:Secret"];
+
+            _client = new RazorpayClient(_key, _secret);
         }
 
         public Order CreateOrder(decimal amount, string receipt)
         {
-            var client = new RazorpayClient(_key, _secret);
+            //var client = new RazorpayClient(_key, _secret);
 
             var options = new Dictionary<string, object>
             {
                 { "amount", amount * 100 },
                 { "currency", "INR" },
-                { "receipt", receipt }
+                { "receipt", receipt },
+                { "payment_capture", 1 }
             };
-            return client.Order.Create(options);
+            return _client.Order.Create(options);
         }
         public bool VerifyPayment(string orderId, string paymentId, string signature)
         {
@@ -39,5 +47,24 @@ namespace Renteffy.Integration.Payments
 
             return generated == signature;
         }
+
+        public string CreateRefund(string paymentId,decimal amount,string? reason = null)
+        {
+            var options = new Dictionary<string, object>{
+                            //{ "payment_id", paymentId },
+                            { "amount", (int)(amount * 100) },
+                            { "speed", "normal" }
+                        };
+
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                options.Add("notes",new Dictionary<string, string>{{ "reason", reason }});
+            }
+
+            var refund = _client.Payment.Fetch(paymentId).Refund(options);
+
+            return refund["id"].ToString() ?? throw new Exception("Razorpay refund ID not returned.");
+        }
+
     }
 }

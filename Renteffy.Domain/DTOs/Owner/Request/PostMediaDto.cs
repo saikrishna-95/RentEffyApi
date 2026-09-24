@@ -7,6 +7,8 @@ namespace Renteffy.Domain.DTOs.Owner.Request
     public class PostMediaDto
     {
         public int PostId { get; set; }
+
+        public int MediaCategoryId { get; set; }
         public string MediaType { get; set; } = default!;
         public string FileName { get; set; } = default!;
         public string FilePath { get; set; } = default!;

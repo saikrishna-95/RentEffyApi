@@ -4,6 +4,7 @@ using Renteffy.Domain.DTOs.Owner;
 using Renteffy.Domain.DTOs.Owner.Request;
 using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.DTOs.User.Response;
+using Renteffy.Domain.DTOs.UserTrans.Request;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Domain.Entities.Registration;
 using Renteffy.Domain.Services.PersistanceInterfaces.Owner;
@@ -38,6 +39,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
+            var vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
 
             foreach (var post in posts)
             {
@@ -46,6 +48,7 @@ namespace Renteffy.Persistence.Implementation.Owner
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
                 post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
+                post.Vibes = vibes.Where(v => v.PostId == post.PostId).ToList();
             }
             return posts;
         }
@@ -65,8 +68,40 @@ namespace Renteffy.Persistence.Implementation.Owner
             post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
             post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             post.FoodPosts = (await multi.ReadAsync<FoodPostDto>()).ToList();
+            post.Vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
+            post.Beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
 
             return post;
+        }
+
+        public async Task<List<OwnerBookingResponseDTO>>GetOwnerBookingsAsync(int ownerId)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            var result =
+                await con.QueryAsync<OwnerBookingResponseDTO>(
+                    "sp_Pg_GetOwnerBookings",
+                    new
+                    {
+                        OwnerId = ownerId
+                    },
+                    commandType: CommandType.StoredProcedure);
+
+            return result.ToList();
+        }
+
+        public async Task<int> CheckInAsync(CheckInRequestDTO request)
+        {
+            using var con = _dbFactory.CreateConnection();
+
+            return await con.QueryFirstAsync<int>(
+                "sp_Pg_CheckIn",
+                new
+                {
+                    BookingId = request.BookingId,
+                    OwnerId = request.OwnerId
+                },
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

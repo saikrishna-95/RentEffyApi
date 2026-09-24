@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Renteffy.Application.Implementation.User;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.User;
+using Renteffy.Domain.DTOs.Owner.Request;
 using Renteffy.Domain.DTOs.UserTrans.Response;
 using Renteffy.Persistence.RegistrationDbContext;
 using System.Data;
@@ -44,7 +46,21 @@ namespace Renteffy.Api.Controllers.User
             return Ok(data);
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetMediaCategories")]
+        public async Task<IActionResult>GetMediaCategories()
+        {
+            var result = await _readApp.GetMediaCategoriesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
         [Authorize]
+        //[AllowAnonymous]
         [HttpGet("GetAllMasters")]
         public async Task<IActionResult> GetAllMasterData()
         {
@@ -52,6 +68,7 @@ namespace Renteffy.Api.Controllers.User
             {
                 Amenities = await _context.M_Amenities_MT
                     .AsNoTracking()
+                    //.OrderByDescending(x => x.AmenityId)
                     .Select(x => new AmenitesResponseDto
                     {
                         AmenityId = x.AmenityId,
@@ -61,6 +78,7 @@ namespace Renteffy.Api.Controllers.User
 
                 BedTypes = await _context.M_BedTypes_MT
                     .AsNoTracking()
+                    .OrderByDescending(x => x.BedTypeId)
                     .Select(x => new BedTypeResponseDto
                     {
                         BedTypeId = x.BedTypeId,
@@ -70,6 +88,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Categories = await _context.M_Categories_MT
                     .AsNoTracking()
+                    .OrderByDescending(x => x.CategoryId)
                     .Select(x => new CategoryResponseDto
                     {
                         CategoryId = x.CategoryId,
@@ -79,6 +98,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Floors = await _context.M_Floors_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.FloorId)
                     .Select(x => new FloorResponseDto
                     {
                         FloorId = x.FloorId,
@@ -88,6 +108,7 @@ namespace Renteffy.Api.Controllers.User
 
                 FoodTypes = await _context.M_FOOD_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.FoodId)
                     .Select(x => new FoodResponseDto
                     {
                         FoodId = x.FoodId,
@@ -97,6 +118,7 @@ namespace Renteffy.Api.Controllers.User
 
                 PgTypes = await _context.M_PGTYPE_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.PgTypeId)
                     .Select(x => new PgTypeResponseDto
                     {
                         PgTypeId = x.PgTypeId,
@@ -106,6 +128,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Rooms = await _context.M_Rooms_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.RoomId)
                     .Select(x => new RoomResponseDto
                     {
                         RoomId = x.RoomId,
@@ -115,6 +138,7 @@ namespace Renteffy.Api.Controllers.User
 
                 StayingPeriods = await _context.M_STAYING_PERIOD_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.StngPrdId)
                     .Select(x => new StayingPeriodResponseDto
                     {
                         StngPrdId = x.StngPrdId,
@@ -223,5 +247,32 @@ namespace Renteffy.Api.Controllers.User
             var result = await _readApp.GetOwnerRequestsAsync(ownerId);
             return Ok(result);
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetVibes")]
+        public async Task<IActionResult> GetVibes()
+        {
+            var result = await _readApp.GetVibesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetAvailableBeds")]
+        public async Task<IActionResult> GetAvailableBeds(AvailableBedsRequestDTO request)
+        {
+            var result = await _readApp.GetAvailableBedsAsync(request);
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
     }
 }

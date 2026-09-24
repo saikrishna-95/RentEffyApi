@@ -1,4 +1,5 @@
 ﻿using Renteffy.Application.Interfaces.Owner;
+using Renteffy.Domain.DTOs.Owner.Request;
 using Renteffy.Domain.DTOs.Owner.Response;
 using Renteffy.Domain.DTOs.User.Response;
 using Renteffy.Domain.Services.Interfaces.Owner;
@@ -24,5 +25,11 @@ namespace Renteffy.Application.Implementation.Owner
         {
             return await _getPostsByOwnerDomain.GetPostForEditAsync(postId);
         }
+
+        public async Task<List<OwnerBookingResponseDTO>> GetOwnerBookingsAsync(int ownerId)
+            => await _getPostsByOwnerDomain.GetOwnerBookingsAsync(ownerId);
+
+        public async Task<int> CheckInAsync(CheckInRequestDTO request)
+            => await _getPostsByOwnerDomain.CheckInAsync(request);
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Renteffy.Application.Interfaces.Owner;
 using Renteffy.Application.Interfaces.PasswordRestChange;
 using Renteffy.Domain.DTOs.Owner.Request;
+using Renteffy.Domain.DTOs.UserTrans.Request;
 using Renteffy.Shared.Security;
 using System.Text.Json;
 
@@ -22,18 +23,52 @@ namespace Renteffy.Api.Controllers.Owner
             _getPostsByOwnerApplication = getPostsByOwnerApplication;
         }
 
-        [AllowAnonymous]
-        [HttpPost("AddPost")]
+        [Authorize]
+        [HttpPost("AddPost")]    
         public async Task<IActionResult> AddPostAsync([FromForm] string data, [FromForm] List<IFormFile> files)
         {
             try
             {
                 var request = JsonSerializer.Deserialize<AddPostRequestDto>(data, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                //var mediaMeta = JsonSerializer.Deserialize<List<MediaMetaDto>>(mediaMetaData,new JsonSerializerOptions { PropertyNameCaseInsensitive = true,AllowTrailingCommas=true });
 
                 if (request == null)
-                    return BadRequest("Invalid post data");
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid post data"
+                    });
 
-                var postId = await _readApp.AddPostAsync(request, files);
+                // Validate Media Metadata
+                if (request.mediaMetas == null ||
+                    request.mediaMetas.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Media metadata required"
+                    });
+                }
+
+                if (files == null || files.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Files required"
+                    });
+                }
+
+                // Files count must match metadata count
+                if (files.Count != request.mediaMetas.Count)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Files count and media metadata count mismatch"
+                    });
+                }
+                var postId = await _readApp.AddPostAsync(request, files, request.mediaMetas);
 
                 return Ok(new
                 {
@@ -135,6 +170,30 @@ namespace Renteffy.Api.Controllers.Owner
                 return BadRequest("Failed");
 
             return Ok(new { message = "Status updated successfully",Success = true,Result = 1 });
+        }
+        [AllowAnonymous]
+        [HttpGet("GetOwnerBookings")]
+        public async Task<IActionResult>GetOwnerBookings(int ownerId)
+        {
+            var result = await _getPostsByOwnerApplication.GetOwnerBookingsAsync(ownerId);
+
+            return Ok(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("CheckIn")]
+        public async Task<IActionResult>CheckIn(CheckInRequestDTO request)
+        {
+            var result = await _getPostsByOwnerApplication.CheckInAsync(request);
+
+            return Ok(new
+            {
+                success = result == 1
+            });
         }
     }
 }
