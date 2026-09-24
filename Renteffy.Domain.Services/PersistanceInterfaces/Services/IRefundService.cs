@@ -6,5 +6,6 @@ namespace Renteffy.Domain.Services.PersistanceInterfaces.Services
 {
     public interface IRefundService
     {
+
     }
 }

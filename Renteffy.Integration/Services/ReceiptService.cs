@@ -20,8 +20,9 @@ namespace Renteffy.Integration.Services
             _cloudinary = cloudinary;
         }
 
-        public async Task<string> GenerateReceiptAsync(BookingReceiptDto booking)
+        public async Task<ReceiptResultDto> GenerateReceiptAsync(BookingReceiptDto booking)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
             var tempFolder = Path.Combine(Directory.GetCurrentDirectory(),"TempReceipts");
 
             if (!Directory.Exists(tempFolder))
@@ -72,22 +73,25 @@ namespace Renteffy.Integration.Services
 
             // UPLOAD PDF TO CLOUDINARY
 
-            await using var stream =
-                File.OpenRead(localPath);
-
+            var pdfBytes = await File.ReadAllBytesAsync(localPath);
+            using var stream = new MemoryStream(pdfBytes);
             var uploadParams = new RawUploadParams
             {
-                File = new FileDescription(
-                    Path.GetFileName(localPath),
-                    stream),
-
-                Folder = $"receipts/{booking.BookingId}",
-
-                PublicId = $"Receipt_{booking.BookingId}"
+                File = new FileDescription($"Receipt_{booking.BookingId}.pdf",stream),
+                PublicId = $"receipts/Receipt_{booking.BookingId}",
+                UseFilename = false,
+                UniqueFilename = false,
+                Overwrite = true
             };
 
-            var uploadResult =
-                await _cloudinary.UploadAsync(uploadParams);
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.Error != null)
+            {
+                throw new Exception(
+                    uploadResult.Error.Message);
+            }
+            stream.Close();
 
             // DELETE TEMP FILE
 
@@ -96,7 +100,11 @@ namespace Renteffy.Integration.Services
                 File.Delete(localPath);
             }
 
-            return uploadResult.SecureUrl.ToString();
+            return new ReceiptResultDto
+            {
+                LocalPath = localPath,
+                CloudUrl = uploadResult.SecureUrl.ToString()
+            };
         }
     }
 }

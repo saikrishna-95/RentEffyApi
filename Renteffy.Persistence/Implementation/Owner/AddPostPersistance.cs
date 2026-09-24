@@ -281,16 +281,14 @@ namespace Renteffy.Persistence.Implementation.Owner
             foreach (var media in mediaList)
             {
                 await con.ExecuteAsync(@"
-                UPDATE T_PostMedia_TR
-                SET
-                    MediaType = @MediaType,
-                    FileName = @FileName,
-                    FilePath = @FilePath,
-                    ContentType = @ContentType,
-                    MediaCategoryId = @MediaCategoryId
-                WHERE Id = @Id",
-                        media
-                    );
+                UPDATE  T_PostMedia_TR
+                SET     MediaType = @MediaType,
+                        FileName = @FileName,
+                        FilePath = @FilePath,
+                        ContentType = @ContentType,
+                        MediaCategoryId = @MediaCategoryId
+                WHERE   Id = @Id",
+                        media );
             }
         }
 

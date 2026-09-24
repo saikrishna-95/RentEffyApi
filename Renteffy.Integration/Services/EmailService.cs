@@ -22,12 +22,8 @@ namespace Renteffy.Integration.Services
         public async Task SendEmailAsync(string to,string subject,string body,string attachmentPath = null)
         {
             var email = new MimeMessage();
-
-            email.From.Add(
-                MailboxAddress.Parse(_config["EmailSettings:FromEmail"]));
-
+            email.From.Add(MailboxAddress.Parse(_config["EmailSettings:FromEmail"]));
             email.To.Add(MailboxAddress.Parse(to));
-
             email.Subject = subject;
 
             var builder = new BodyBuilder
@@ -37,11 +33,12 @@ namespace Renteffy.Integration.Services
 
             if (!string.IsNullOrEmpty(attachmentPath))
             {
-                builder.Attachments.Add(attachmentPath);
+                using var httpClient = new HttpClient();
+                var fileBytes = await httpClient.GetByteArrayAsync(attachmentPath);
+                builder.Attachments.Add("Receipt.pdf",fileBytes,ContentType.Parse("application/pdf"));
             }
 
             email.Body = builder.ToMessageBody();
-
             using var smtp = new SmtpClient();
 
             await smtp.ConnectAsync(_config["EmailSettings:Host"],Convert.ToInt32(_config["EmailSettings:Port"]),false);

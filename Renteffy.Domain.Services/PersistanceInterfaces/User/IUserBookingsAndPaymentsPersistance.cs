@@ -14,5 +14,7 @@ namespace Renteffy.Domain.Services.PersistanceInterfaces.User
         Task<BookingReceiptDto>GetBookingReceiptDetailsAsync(int bookingId);
         Task SaveReceiptAsync(int bookingId, string receiptUrl);
         Task<int> VacateAsync(VacateRequestDTO request);
+        Task<List<MyBookingResponseDto>> GetMyBookingsAsync(int userId);
+        Task<BookingPaymentDetailsDto?> GetBookingPaymentDetailsAsync(int bookingId);
     }
 }

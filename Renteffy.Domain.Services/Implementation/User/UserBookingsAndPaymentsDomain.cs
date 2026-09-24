@@ -37,5 +37,8 @@ namespace Renteffy.Domain.Services.Implementation.User
 
         public async Task<int> VacateAsync(VacateRequestDTO request)
             => await _readRepo.VacateAsync(request);
+
+        public async Task<List<MyBookingResponseDto>> GetMyBookingsAsync(int userId)
+            => await _readRepo.GetMyBookingsAsync(userId);
     }
 }

@@ -8,6 +8,7 @@ using Renteffy.Domain.DTOs.UserTrans.Request;
 using Renteffy.Domain.Services.PersistanceInterfaces.Payments;
 using Renteffy.Domain.Services.PersistanceInterfaces.Services;
 using Renteffy.Persistence.RegistrationDbContext;
+using QuestPDF.Infrastructure;
 
 namespace Renteffy.Api.Controllers.User
 {
@@ -59,8 +60,8 @@ namespace Renteffy.Api.Controllers.User
             }
         }
 
-        //[Authorize]
-        [AllowAnonymous]
+        [Authorize]
+        //[AllowAnonymous]
         [HttpPost("ConfirmPgBooking")]
         public async Task<IActionResult> ConfirmPgBooking(ConfirmBookingRequestDTO request)
         {
@@ -85,12 +86,21 @@ namespace Renteffy.Api.Controllers.User
                     });
                 }
                 var booking = await _readApp.GetBookingReceiptDetailsAsync(request.BookingId);
+                try
+                {
+                    QuestPDF.Settings.License = LicenseType.Community;
+                    var receiptPath = await _receiptService.GenerateReceiptAsync(booking);
 
-                var receiptPath = await _receiptService.GenerateReceiptAsync(booking);
+                    await _readApp.SaveReceiptAsync(request.BookingId, receiptPath.CloudUrl);
 
-                await _readApp.SaveReceiptAsync(request.BookingId,receiptPath);
-
-                await _emailService.SendEmailAsync(booking.Email,"Booking Confirmed","<h2>Your booking has been confirmed.</h2>",receiptPath);
+                    await _emailService.SendEmailAsync(booking.Email, "Booking Confirmed", "<h2>Your booking has been confirmed.</h2>", receiptPath.LocalPath);
+                }
+                catch (Exception ex)
+                {
+                    // Optional logging
+                    Console.WriteLine(ex.Message);
+                }
+                
                 return Ok(new
                 {
                     success = true,
@@ -103,23 +113,51 @@ namespace Renteffy.Api.Controllers.User
             }
         }
 
-        [Authorize]
+        //[Authorize]
+        //[HttpPost("CancelPgBooking")]
+        //public async Task<IActionResult> Cancel(CancelBookingRequestDTO request)
+        //{
+        //    try
+        //    {
+        //       var result = await _readApp.CancelBookingAsync(request);
+
+        //        return Ok(new
+        //        {
+        //            success = result == 1,
+        //            message = result == 1 ? "Cancelled" : "Failed"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { success = false, message = ex.Message });
+        //    }
+        //}
+
+        //[Authorize]
+        [AllowAnonymous]
         [HttpPost("CancelPgBooking")]
         public async Task<IActionResult> Cancel(CancelBookingRequestDTO request)
         {
             try
             {
-               var result = await _readApp.CancelBookingAsync(request);
+                var result =
+                    await _readApp.CancelBookingAsync(request);
 
                 return Ok(new
                 {
                     success = result == 1,
-                    message = result == 1 ? "Cancelled" : "Failed"
+                    message = result == 1
+                        ? "Booking cancelled and refund initiated successfully"
+                        : "Failed"
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = ex.Message });
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
 
@@ -157,6 +195,21 @@ namespace Renteffy.Api.Controllers.User
                     message = ex.Message
                 });
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("GetUserBookings/{userId}")]
+        public async Task<IActionResult> GetMyBookings(int userId)
+        {
+            var result = await _readApp.GetMyBookingsAsync(userId);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Bookings fetched successfully",
+                data = result
+            });
         }
     }
 }

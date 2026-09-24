@@ -23,7 +23,7 @@ namespace Renteffy.Api.Controllers.Owner
             _getPostsByOwnerApplication = getPostsByOwnerApplication;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("AddPost")]    
         public async Task<IActionResult> AddPostAsync([FromForm] string data, [FromForm] List<IFormFile> files)
         {
@@ -33,8 +33,41 @@ namespace Renteffy.Api.Controllers.Owner
                 //var mediaMeta = JsonSerializer.Deserialize<List<MediaMetaDto>>(mediaMetaData,new JsonSerializerOptions { PropertyNameCaseInsensitive = true,AllowTrailingCommas=true });
 
                 if (request == null)
-                    return BadRequest("Invalid post data");
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid post data"
+                    });
 
+                // Validate Media Metadata
+                if (request.mediaMetas == null ||
+                    request.mediaMetas.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Media metadata required"
+                    });
+                }
+
+                if (files == null || files.Count == 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Files required"
+                    });
+                }
+
+                // Files count must match metadata count
+                if (files.Count != request.mediaMetas.Count)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Files count and media metadata count mismatch"
+                    });
+                }
                 var postId = await _readApp.AddPostAsync(request, files, request.mediaMetas);
 
                 return Ok(new

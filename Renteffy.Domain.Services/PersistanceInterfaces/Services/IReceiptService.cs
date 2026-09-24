@@ -7,6 +7,6 @@ namespace Renteffy.Domain.Services.PersistanceInterfaces.Services
 {
     public interface IReceiptService
     {
-        Task<string> GenerateReceiptAsync(BookingReceiptDto booking);
+        Task<ReceiptResultDto> GenerateReceiptAsync(BookingReceiptDto booking);
     }
 }

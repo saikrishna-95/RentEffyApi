@@ -60,6 +60,7 @@ namespace Renteffy.Api.Controllers.User
         }
 
         [Authorize]
+        //[AllowAnonymous]
         [HttpGet("GetAllMasters")]
         public async Task<IActionResult> GetAllMasterData()
         {
@@ -67,6 +68,7 @@ namespace Renteffy.Api.Controllers.User
             {
                 Amenities = await _context.M_Amenities_MT
                     .AsNoTracking()
+                    //.OrderByDescending(x => x.AmenityId)
                     .Select(x => new AmenitesResponseDto
                     {
                         AmenityId = x.AmenityId,
@@ -76,6 +78,7 @@ namespace Renteffy.Api.Controllers.User
 
                 BedTypes = await _context.M_BedTypes_MT
                     .AsNoTracking()
+                    .OrderByDescending(x => x.BedTypeId)
                     .Select(x => new BedTypeResponseDto
                     {
                         BedTypeId = x.BedTypeId,
@@ -85,6 +88,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Categories = await _context.M_Categories_MT
                     .AsNoTracking()
+                    .OrderByDescending(x => x.CategoryId)
                     .Select(x => new CategoryResponseDto
                     {
                         CategoryId = x.CategoryId,
@@ -94,6 +98,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Floors = await _context.M_Floors_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.FloorId)
                     .Select(x => new FloorResponseDto
                     {
                         FloorId = x.FloorId,
@@ -103,6 +108,7 @@ namespace Renteffy.Api.Controllers.User
 
                 FoodTypes = await _context.M_FOOD_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.FoodId)
                     .Select(x => new FoodResponseDto
                     {
                         FoodId = x.FoodId,
@@ -112,6 +118,7 @@ namespace Renteffy.Api.Controllers.User
 
                 PgTypes = await _context.M_PGTYPE_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.PgTypeId)
                     .Select(x => new PgTypeResponseDto
                     {
                         PgTypeId = x.PgTypeId,
@@ -121,6 +128,7 @@ namespace Renteffy.Api.Controllers.User
 
                 Rooms = await _context.M_Rooms_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.RoomId)
                     .Select(x => new RoomResponseDto
                     {
                         RoomId = x.RoomId,
@@ -130,6 +138,7 @@ namespace Renteffy.Api.Controllers.User
 
                 StayingPeriods = await _context.M_STAYING_PERIOD_MT
                     .AsNoTracking()
+                    .OrderBy(x => x.StngPrdId)
                     .Select(x => new StayingPeriodResponseDto
                     {
                         StngPrdId = x.StngPrdId,
@@ -264,5 +273,6 @@ namespace Renteffy.Api.Controllers.User
                 data = result
             });
         }
+
     }
 }
