@@ -104,8 +104,8 @@ namespace Renteffy.Api.Controllers.Owner
             return Ok(posts);
         }
 
-        [Authorize]
-        //[AllowAnonymous]
+        //[Authorize]
+        [AllowAnonymous]
         [HttpPost("GetPostForEdit")]
         public async Task<IActionResult> GetPostForEdit(int postId)
         {
