@@ -51,9 +51,9 @@ namespace Renteffy.Persistence.Implementation.User
             var posts = (await multi.ReadAsync<PublicPostResponseDto>()).ToList();
             var media = (await multi.ReadAsync<PostMediaDto>()).ToList();
             var pricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
+            var roomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
             var amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
-            var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
-            var RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
+            var stayingperiods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();           
             var food = (await multi.ReadAsync<FoodPostDto>()).ToList();
             var vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
             var beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();
@@ -62,9 +62,9 @@ namespace Renteffy.Persistence.Implementation.User
             {
                 post.Media = media.Where(m => m.PostId == post.PostId).ToList();
                 post.Pricing = pricing.Where(p => p.PostId == post.PostId).ToList();
+                post.RoomStayingPeriodPricing = roomStayingPeriodPricing.Where(p => p.PostId == post.PostId).ToList();
                 post.Amenities = amenities.Where(p => p.PostId == post.PostId).ToList();
-                post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();
-                post.RoomStayingPeriodPricing = RoomStayingPeriodPricing.Where(p => p.PostId == post.PostId).ToList();
+                post.stayingPeriods = stayingperiods.Where(p => p.PostId == post.PostId).ToList();              
                 post.foodPosts = food.Where(p => p.PostId == post.PostId).ToList();
                 post.Vibes = vibes.Where(v => v.PostId == post.PostId).ToList();
                 post.Beds = beds.Where(p => p.PostId == post.PostId).ToList();

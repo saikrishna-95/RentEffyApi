@@ -13,7 +13,7 @@ namespace Renteffy.Domain.DTOs.UserTrans.Request
         public int BedTypeId { get; set; }
         public int BedId { get; set; }
         public int StngPrdId { get; set; }
-        public decimal Price { get; set; }
+        //public decimal Price { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
 

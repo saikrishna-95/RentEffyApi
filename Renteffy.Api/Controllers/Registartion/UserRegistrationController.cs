@@ -32,6 +32,10 @@ namespace Renteffy.Api.Controllers.Registartion
             {
                 return BadRequest(new ApiResponse<string> { Success = false, Message = "Already MobileNumber Existed." });
             }
+            else if (result == 3)
+            {
+                return BadRequest(new ApiResponse<string> { Success = false, Message = "Required field missing." });
+            }
             else if (result == 0)
             {
                 return BadRequest(new ApiResponse<string> { Success = false, Message = "Already Registered." });
