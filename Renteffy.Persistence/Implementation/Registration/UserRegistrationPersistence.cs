@@ -49,11 +49,7 @@ namespace Renteffy.Persistence.Implementation.Registration
 
             parameters.Add("@Result", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            await con.ExecuteAsync(
-                "sp_RegisterUser",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
+            await con.ExecuteAsync("sp_RegisterUser",parameters,commandType: CommandType.StoredProcedure);
 
             return parameters.Get<int>("@Result");
         }

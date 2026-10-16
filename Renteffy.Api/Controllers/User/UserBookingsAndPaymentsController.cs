@@ -36,19 +36,46 @@ namespace Renteffy.Api.Controllers.User
             _receiptService = receiptService;
         }
 
-        //[Authorize]
-        [AllowAnonymous]
+        [Authorize]
+        //[AllowAnonymous]
         [HttpPost("BookingPg")]
         public async Task<IActionResult> BookingPg(CreateBookingRequestDTO request)
         {
             try
             {
-                var bookingId = await _readApp.CreateBookingAsync(request);
-                var order = _razorpay.CreateOrder(request.Price, bookingId.ToString());
+                var userIdClaim = User.FindFirst("UserId")?.Value;
+                if (string.IsNullOrWhiteSpace(userIdClaim))
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "User not found."
+                    });
+                }
+                var userId = int.Parse(userIdClaim);
+
+                var bookingResult = await _readApp.CreateBookingAsync(request, userId);
+                var order = _razorpay.CreateOrder(bookingResult.Price, bookingResult.BookingId.ToString());
+                var razorpayOrderId = order["id"]?.ToString();
+                if (string.IsNullOrWhiteSpace(razorpayOrderId))
+                {
+                    return BadRequest(new{success = false,message = "Razorpay order was not created."});
+                }
+
+                var saved = await _readApp.SaveRazorpayOrderAsync(bookingResult.BookingId,razorpayOrderId);
+
+                if (!saved)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Unable to save Razorpay order."
+                    });
+                }
                 return Ok(new
                 {
                     success = true,
-                    BookingId=bookingId,
+                    BookingId=bookingResult.BookingId,
                     orderId = order["id"].ToString(),
                     amount = Convert.ToDecimal(order["amount"]) / 100,
                     key = _config["Razorpay:Key"]
@@ -67,7 +94,35 @@ namespace Renteffy.Api.Controllers.User
         {
             try
             {
-                var isValid = _razorpay.VerifyPayment(request.RazorpayOrderId,request.RazorpayPaymentId,request.RazorpaySignature);
+                var userIdValue = User.FindFirst("UserId")?.Value;
+                if (string.IsNullOrWhiteSpace(userIdValue))
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "User ID not found in token."
+                    });
+                }
+                var userId = int.Parse(userIdValue);
+                var booking = await _readApp.GetBookingForPaymentVerificationAsync(request.BookingId,userId);
+                if (booking == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Booking not found."
+                    });
+                }
+                // 3. Make sure Razorpay order exists
+                if (string.IsNullOrWhiteSpace(booking.RazorpayOrderId))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Razorpay order ID not found for this booking."
+                    });
+                }
+                var isValid = _razorpay.VerifyPayment(booking.RazorpayOrderId,request.RazorpayPaymentId,request.RazorpaySignature);
                 if (!isValid)
                 {
                     return BadRequest(new
@@ -76,6 +131,7 @@ namespace Renteffy.Api.Controllers.User
                         message = "Invalid payment signature"
                     });
                 }
+                request.RazorpayOrderId = booking.RazorpayOrderId;
                 var result = await _readApp.ConfirmBookingAsync(request);
                 if (result != 1)
                 {
@@ -85,15 +141,15 @@ namespace Renteffy.Api.Controllers.User
                         message = "Unable to confirm booking"
                     });
                 }
-                var booking = await _readApp.GetBookingReceiptDetailsAsync(request.BookingId);
+                var bookingRes = await _readApp.GetBookingReceiptDetailsAsync(request.BookingId);
                 try
                 {
                     QuestPDF.Settings.License = LicenseType.Community;
-                    var receiptPath = await _receiptService.GenerateReceiptAsync(booking);
+                    var receiptPath = await _receiptService.GenerateReceiptAsync(bookingRes);
 
                     await _readApp.SaveReceiptAsync(request.BookingId, receiptPath.CloudUrl);
 
-                    await _emailService.SendEmailAsync(booking.Email, "Booking Confirmed", "<h2>Your booking has been confirmed.</h2>", receiptPath.LocalPath);
+                    await _emailService.SendEmailAsync(bookingRes.Email, "Booking Confirmed", "<h2>Your booking has been confirmed.</h2>", receiptPath.LocalPath);
                 }
                 catch (Exception ex)
                 {

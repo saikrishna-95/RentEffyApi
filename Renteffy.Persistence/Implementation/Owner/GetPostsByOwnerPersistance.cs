@@ -65,9 +65,9 @@ namespace Renteffy.Persistence.Implementation.Owner
             var post = await multi.ReadFirstOrDefaultAsync<EditOwnerPostResponseDto>();
             post.Media = (await multi.ReadAsync<PostMediaDto>()).ToList();
             post.RoomPricing = (await multi.ReadAsync<RoomPricingDto>()).ToList();
-            post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
-            post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();
             post.RoomStayingPeriodPricing = (await multi.ReadAsync<RoomStayingPeriodPricingResponseDto>()).ToList();
+            post.Amenities = (await multi.ReadAsync<AmenitiesDto>()).ToList();
+            post.StayingPeriods = (await multi.ReadAsync<StayingPeriodsPostDto>()).ToList();          
             post.FoodPosts = (await multi.ReadAsync<FoodPostDto>()).ToList();
             post.Vibes = (await multi.ReadAsync<VibesResponseDTO>()).ToList();
             post.Beds = (await multi.ReadAsync<BedAvailabilityDto>()).ToList();

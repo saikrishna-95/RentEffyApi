@@ -20,8 +20,15 @@ namespace Renteffy.Domain.Services.Implementation.User
             _config = config;
         }
 
-        public async Task<int> CreateBookingAsync(CreateBookingRequestDTO request) 
-            => await _readRepo.CreateBookingAsync(request);
+        public async Task<CreateBookingResponseDTO> CreateBookingAsync(CreateBookingRequestDTO request, int userId)
+            => await _readRepo.CreateBookingAsync(request, userId);
+
+        public async Task<CreateBookingPaymentVerificationResponseDTO?> GetBookingForPaymentVerificationAsync(int bookingId, int userId)
+            => await _readRepo.GetBookingForPaymentVerificationAsync(bookingId, userId);
+
+        public async Task<bool> SaveRazorpayOrderAsync(int bookingId,string razorpayOrderId)
+          => await _readRepo.SaveRazorpayOrderAsync(bookingId,razorpayOrderId);
+        
 
         public async Task<int> ConfirmBookingAsync(ConfirmBookingRequestDTO confirm)
             => await _readRepo.ConfirmBookingAsync(confirm);
