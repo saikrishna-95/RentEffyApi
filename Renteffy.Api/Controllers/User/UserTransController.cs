@@ -88,12 +88,13 @@ namespace Renteffy.Api.Controllers.User
 
                 Categories = await _context.M_Categories_MT
                     .AsNoTracking()
+                    .Where(x => x.IsActive == 1)
                     .OrderByDescending(x => x.CategoryId)
                     .Select(x => new CategoryResponseDto
                     {
                         CategoryId = x.CategoryId,
                         Name = x.Name
-                    })
+                    })         
                     .ToListAsync(),
 
                 Floors = await _context.M_Floors_MT
