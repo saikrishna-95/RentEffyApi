@@ -83,8 +83,8 @@ namespace Renteffy.Api.Controllers.Owner
             }
         }
 
-        [Authorize]
-        //[AllowAnonymous]
+        //[Authorize]
+        [AllowAnonymous]
         [HttpPost("GetPostsByOwnerId")]
         public async Task<IActionResult> GetPostsByOwnerId(int ownerId)
         {
@@ -104,8 +104,8 @@ namespace Renteffy.Api.Controllers.Owner
             return Ok(posts);
         }
 
-        [Authorize]
-        //[AllowAnonymous]
+        //[Authorize]
+        [AllowAnonymous]
         [HttpPost("GetPostForEdit")]
         public async Task<IActionResult> GetPostForEdit(int postId)
         {
