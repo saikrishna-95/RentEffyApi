@@ -133,7 +133,8 @@ namespace Renteffy.Api.Controllers.User
                     .Select(x => new RoomResponseDto
                     {
                         RoomId = x.RoomId,
-                        RoomNumber = x.RoomNumber
+                        RoomNumber = x.RoomNumber,
+                        FloorId = x.FloorId                       
                     })
                     .ToListAsync(),
 

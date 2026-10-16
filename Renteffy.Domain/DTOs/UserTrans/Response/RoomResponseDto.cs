@@ -10,5 +10,6 @@ namespace Renteffy.Domain.DTOs.UserTrans.Response
         [Key]
         public int RoomId { get; set; }
         public int RoomNumber { get; set; }
+        public int FloorId { get; set; }
     }
 }
