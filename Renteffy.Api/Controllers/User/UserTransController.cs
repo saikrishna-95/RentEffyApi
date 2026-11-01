@@ -59,8 +59,8 @@ namespace Renteffy.Api.Controllers.User
             });
         }
 
-        [Authorize]
-        //[AllowAnonymous]
+        //[Authorize]
+        [AllowAnonymous]
         [HttpGet("GetAllMasters")]
         public async Task<IActionResult> GetAllMasterData()
         {
@@ -73,8 +73,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         AmenityId = x.AmenityId,
                         Name = x.Name
-                    })
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 BedTypes = await _context.M_BedTypes_MT
                     .AsNoTracking()
@@ -83,8 +82,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         BedTypeId = x.BedTypeId,
                         Name = x.Name
-                    })
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 Categories = await _context.M_Categories_MT
                     .AsNoTracking()
@@ -94,8 +92,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         CategoryId = x.CategoryId,
                         Name = x.Name
-                    })         
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 Floors = await _context.M_Floors_MT
                     .AsNoTracking()
@@ -104,8 +101,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         FloorId = x.FloorId,
                         FloorNumber = x.FloorNumber
-                    })
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 FoodTypes = await _context.M_FOOD_MT
                     .AsNoTracking()
@@ -114,8 +110,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         FoodId = x.FoodId,
                         Name = x.Name
-                    })
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 PgTypes = await _context.M_PGTYPE_MT
                     .AsNoTracking()
@@ -124,8 +119,7 @@ namespace Renteffy.Api.Controllers.User
                     {
                         PgTypeId = x.PgTypeId,
                         Name = x.Name
-                    })
-                    .ToListAsync(),
+                    }).ToListAsync(),
 
                 Rooms = await _context.M_Rooms_MT
                     .AsNoTracking()
@@ -134,9 +128,8 @@ namespace Renteffy.Api.Controllers.User
                     {
                         RoomId = x.RoomId,
                         RoomNumber = x.RoomNumber,
-                        FloorId = x.FloorId                       
-                    })
-                    .ToListAsync(),
+                        FloorId = x.FloorId
+                    }).ToListAsync(),
 
                 StayingPeriods = await _context.M_STAYING_PERIOD_MT
                     .AsNoTracking()
@@ -145,8 +138,18 @@ namespace Renteffy.Api.Controllers.User
                     {
                         StngPrdId = x.StngPrdId,
                         Name = x.Name
-                    })
-                    .ToListAsync()
+                    }).ToListAsync(),
+
+                Beds = await _context.M_Beds_MT
+                        .AsNoTracking()
+                        .OrderBy(x => x.BedTypeId)
+                        .Select(x => new BedResponseDto
+                        {
+                            BedId = x.BedId,
+                            BedName = x.BedName,
+                            BedTypeId = x.BedTypeId,
+                            IsActive = x.IsActive
+                        }).ToListAsync(),
             };
 
             return Ok(data);

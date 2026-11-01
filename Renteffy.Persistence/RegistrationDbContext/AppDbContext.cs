@@ -40,5 +40,7 @@ namespace Renteffy.Persistence.RegistrationDbContext
         public DbSet<RentalTypeResponseDto> M_RentalType_MT { get; set; }
 
         public DbSet<PropertyPhotosVideosResponseDto> M_Property_PhotosVideos_MT { get; set; }
+
+        public DbSet<BedResponseDto> M_Beds_MT { get; set; }
     }
 }
