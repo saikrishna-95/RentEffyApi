@@ -11,6 +11,6 @@ namespace Renteffy.Domain.DTOs.UserTrans.Response
         public int BedId { get; set; }
         public string BedName { get; set; } = string.Empty;
         public int BedTypeId { get; set; }
-        public bool IsActive { get; set; }
+        public int IsActive { get; set; }
     }
 }
