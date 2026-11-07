@@ -14,5 +14,6 @@ namespace Renteffy.Domain.DTOs.UserTrans.Response
         public List<PgTypeResponseDto> PgTypes { get; set; }
         public List<RoomResponseDto> Rooms { get; set; }
         public List<StayingPeriodResponseDto> StayingPeriods { get; set; }
+        public List<BedResponseDto> Beds { get; set; } = new();
     }
 }

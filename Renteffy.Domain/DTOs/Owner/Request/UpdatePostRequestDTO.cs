@@ -33,6 +33,7 @@ namespace Renteffy.Domain.DTOs.Owner.Request
         public List<AmenitiesDto> Amenities { get; set; }
         public List<StayingPeriodsPostDto> StayingPeriods { get; set; }
         public List<RoomStayingPeriodPricingDto> RoomStayingPeriodPricing { get; set; } = new();
+        public List<PgBedRequestDto> Beds { get; set; } = new();
         public List<FoodPostDto> FoodPosts { get; set; }
         public List<int> DeleteMediaIds { get; set; } = new();
         public List<MediaMetaDto> MediaMetaData { get; set; }

@@ -65,6 +65,28 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            // Build Beds TVP DataTable
+            var bedsTable = new DataTable();
+
+            bedsTable.Columns.Add("FloorId", typeof(int));
+            bedsTable.Columns.Add("RoomId", typeof(int));
+            bedsTable.Columns.Add("BedTypeId", typeof(int));
+            bedsTable.Columns.Add("BedId", typeof(int));
+            bedsTable.Columns.Add("BedName", typeof(string));
+            bedsTable.Columns.Add("IsActive", typeof(bool));
+
+            foreach (var bed in request.Beds ?? new List<PgBedRequestDto>())
+            {
+                bedsTable.Rows.Add(
+                    bed.FloorId,
+                    bed.RoomId,
+                    bed.BedTypeId,
+                    bed.BedId,
+                    bed.BedName,
+                    bed.IsActive
+                );
+            }
+
             var amenitiesTable = new DataTable();
             amenitiesTable.Columns.Add("AmenityId", typeof(int));
 
@@ -126,6 +148,7 @@ namespace Renteffy.Persistence.Implementation.Owner
             // 🔑 TVP parameter
             parameters.Add("@RoomPricing", pricingTable.AsTableValuedParameter("RoomPricingList"));
             parameters.Add("@RoomStayingPeriodPricing", roomStayingPeriodPricingTable.AsTableValuedParameter("RoomStayingPeriodPricingList"));
+            parameters.Add("@Beds",bedsTable.AsTableValuedParameter("dbo.PgBedList"));
             parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
             parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
             parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
@@ -354,6 +377,28 @@ namespace Renteffy.Persistence.Implementation.Owner
                 );
             }
 
+            // Build Beds TVP DataTable
+            var bedsTable = new DataTable();
+
+            bedsTable.Columns.Add("FloorId", typeof(int));
+            bedsTable.Columns.Add("RoomId", typeof(int));
+            bedsTable.Columns.Add("BedTypeId", typeof(int));
+            bedsTable.Columns.Add("BedId", typeof(int));
+            bedsTable.Columns.Add("BedName", typeof(string));
+            bedsTable.Columns.Add("IsActive", typeof(bool));
+
+            foreach (var bed in request.Beds ?? new List<PgBedRequestDto>())
+            {
+                bedsTable.Rows.Add(
+                    bed.FloorId,
+                    bed.RoomId,
+                    bed.BedTypeId,
+                    bed.BedId,
+                    bed.BedName,
+                    bed.IsActive
+                );
+            }
+
             var amenitiesTable = new DataTable();
             amenitiesTable.Columns.Add("AmenityId", typeof(int));
 
@@ -408,10 +453,11 @@ namespace Renteffy.Persistence.Implementation.Owner
 
             parameters.Add("@RoomPricing", pricingTable.AsTableValuedParameter("RoomPricingList"));
             parameters.Add("@RoomStayingPeriodPricing", roomStayingPeriodPricingTable.AsTableValuedParameter("RoomStayingPeriodPricingList"));
+            parameters.Add("@Beds", bedsTable.AsTableValuedParameter("dbo.PgBedList"));
             parameters.Add("@Amenities", amenitiesTable.AsTableValuedParameter("AmenityList"));
             parameters.Add("@StayingPeriods", stayingPeriodTable.AsTableValuedParameter("StayPeriodList"));
             parameters.Add("@FoodPosts", foodPostTable.AsTableValuedParameter("FoodPostList"));
-
+            
             var postId = await con.QuerySingleAsync<int>("sp_UpdatePostWithRoomPricing",parameters,commandType: CommandType.StoredProcedure);
 
             // DELETE selected media

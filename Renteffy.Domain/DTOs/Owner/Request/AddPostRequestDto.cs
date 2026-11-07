@@ -22,6 +22,7 @@ namespace Renteffy.Domain.DTOs.Owner.Request
         public int TotalRooms { get; set; }
         public List<RoomPricingDto> RoomPricing { get; set; }
         public List<RoomStayingPeriodPricingDto> RoomStayingPeriodPricing { get; set; } = new();
+        public List<PgBedRequestDto> Beds { get; set; } = new();
         public List<AmenitiesDto> Amenities { get; set; }
         public List<StayingPeriodsPostDto> StayingPeriods { get; set; }
         public List<FoodPostDto> FoodPosts { get; set; }
